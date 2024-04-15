@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behavioraly.ai - Behavioral Answer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #F97794, #623AA2);
+            color: #FFFFFF;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        header {
+            background-color: transparent;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        .nav-links li {
+            margin-left: 20px;
+        }
+        .nav-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #F97794;
+        }
+        main {
+            margin-top: 100px;
+            max-width: 1200px;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .answer-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+        .answer {
+            font-size: 18px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            outline: none;
+            border: none;
+            background-color: transparent;
+            color: #FFFFFF;
+            width: 100%;
+            min-height: 200px;
+            resize: vertical;
+        }
+        .question-form {
+            margin-bottom: 40px;
+        }
+        .question-form input[type="text"] {
+            width: 60%;
+            padding: 15px;
+            border-radius: 50px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        .question-form button {
+            display: inline-block;
+            background-color: #FFFFFF;
+            color: #623AA2;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .question-form button:hover {
+            background-color: #F97794;
+            color: #FFFFFF;
+        }
+        footer {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">Behavioraly.ai</a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Your Behavioral Answer</h1>
+        <div class="answer-container">
+            <div id="answer" class="answer" contenteditable="true">{{ answer }}</div>
+        </div>
+        <form id="questionForm" class="question-form">
+            <input type="text" id="question" name="question" placeholder="Enter a new behavioral question" value="{{ question }}" required>
+            <input type="hidden" name="experience_text" value="{{ experience_text }}">
+            <input type="hidden" name="company_blurb" value="{{ company_blurb }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <button type="submit">Update Question</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Behavioraly.ai. All rights reserved</p>
+    </footer>
+
+    <script>
+        const answerElement = document.getElementById('answer');
+        const questionForm = document.getElementById('questionForm');
+
+        questionForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const question = document.getElementById('question').value;
+            const experience_text = document.querySelector('input[name="experience_text"]').value;
+            const company_blurb = document.querySelector('input[name="company_blurb"]').value;
+            const role = document.querySelector('input[name="role"]').value;
+            fetch('/update_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question, experience_text: experience_text, company_blurb: company_blurb, role: role })
+            })
+            .then(response => response.json())
+            .then(data => {
+                answerElement.innerText = data.answer;
+            })
+            .catch(error => {
+                console.error('Error updating question:', error);
+            });
+        });
+    </script>
+</body>
+</html>

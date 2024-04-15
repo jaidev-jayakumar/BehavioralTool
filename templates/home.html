@@ -1,0 +1,736 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title> Behavioraly AI - Compelling Behavioral Stories in 10 Seconds </title> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" /> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" /> <script src="https://js.stripe.com/v3/"></script> <style> body { font-family: "Inter", sans-serif; background: linear-gradient(135deg, #F97794, #623AA2); color: #FFFFFF; line-height: 1.6; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+header {
+            background-color: transparent;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            color: #FFFFFF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #F97794;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        h1 span {
+            position: relative;
+            display: inline-block;
+        }
+
+        h1 span::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 8px;
+            height: 6px;
+            background-color: #F97794;
+            z-index: -1;
+            transform: rotate(-2deg);
+            transform-origin: right;
+        }
+
+        p {
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #FFFFFF;
+            color: #623AA2;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            background-color: #F97794;
+            color: #FFFFFF;
+        }
+
+        .problems-solutions {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 60px auto;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .problems-solutions h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .problem-list,
+        .solution-list {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .problem-item,
+        .solution-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            margin: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .problem-item:hover,
+        .solution-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .problem-item i,
+        .solution-item i {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .problem-item h3,
+        .solution-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .problem-item p,
+        .solution-item p {
+            font-size: 18px;
+        }
+
+        footer {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            margin-top: 60px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: #FFFFFF;
+            color: #333333;
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #999999;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #333333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            background-color: #F5F5F5;
+            color: #333333;
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #623AA2;
+        }
+
+        .submit-btn {
+            background-color: #623AA2;
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+            margin-top: 0px;
+        }
+
+        .submit-btn:hover {
+            background-color: #F97794;
+        }
+
+        .pricing {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 60px 20px;
+        }
+
+        .pricing-plan {
+            width: 300px;
+            background-color: #FFFFFF;
+            color: #333333;
+            padding: 40px;
+            border-radius: 10px;
+            margin: 0 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-plan:hover {
+            transform: translateY(-10px);
+        }
+
+        .pricing-plan h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #623AA2;
+        }
+
+        .pricing-plan p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #666666;
+        }
+
+        .pricing-plan .price {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #623AA2;
+        }
+
+        .pricing-plan ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+        }
+
+        .pricing-plan ul li {
+            margin-bottom: 10px;
+            color: #666666;
+        }
+
+        .pricing-plan .cta-button {
+            display: inline-block;
+            background-color: #623AA2;
+            color: #FFFFFF;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-plan .cta-button:hover {
+            background-color: #F97794;
+            color: #FFFFFF;
+        }
+
+        .pricing-plan::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            background-color: #623AA2;
+        }
+        .welcome-message {
+    margin-left: auto; /* pushes the welcome message to the right */
+    padding: 0 20px; /* give some padding */
+    color: #FFF; /* text color */
+    font-size: 1rem; /* adjust as needed */
+    align-self: center; /* vertical alignment */
+}
+
+
+        .pricing-plan:nth-child(2)::before {
+            background-color: #F97794;
+        }
+
+        #experienceForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #experienceForm .form-group {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        #experienceForm .form-group input,
+        #experienceForm .form-group textarea {
+            resize: none;
+        }
+
+        #experienceForm .submit-btn {
+            width: 100%;
+            max-width: 500px;
+        }
+        .plan-info { 
+            text-align: center;
+            margin-top: 0px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .plan-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0px;
+            color: #FFFFFF;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F97794;
+            margin-bottom: 0px;
+        }
+
+        .remaining-credits {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: #FFFFFF;
+        }
+
+        .credits-label {
+            margin-right: 5px;
+        }
+
+        .credits-value {
+            font-weight: 600;
+        }
+
+        .unlimited-credits {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+    <header>
+    <nav>
+
+        <a href="#hero" class="logo">Behavioraly AI</a>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#features">Benefits</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#contact">Contact</a></li>
+            {% if session %}
+            <li class="welcome-message">{{ session.userinfo.email }}</li>
+            <li><a href="/logout">Logout</a></li>
+            {% else %}
+            <li><a href="/login">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+    <section id="hero" class="hero">
+    <h1>Compelling <span>Behavioral Stories</span> in 10 Seconds</h1>
+    <p>
+        Receive tailored, compelling behavioral stories based on your
+        work experience
+    </p>
+    <a href="#" id="openModal" class="cta-button">Get started for free</a>
+    
+</section>
+    <section id="features" class="problems-solutions">
+        <h2>Problems Job Seekers Face</h2>
+        <div class="problem-list">
+            <div class="problem-item">
+                <i class="fas fa-clock"></i>
+                <h3>Time-Consuming</h3>
+                <p>
+                    Crafting impactful behavioral stories is a
+                    time-consuming task for job seekers, often taking hours
+                    of brainstorming and writing.
+                </p>
+            </div>
+            <div class="problem-item">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Lack of Inspiration</h3>
+                <p>
+                    Many job seekers struggle to come up with compelling
+                    stories that showcase their skills and experiences
+                    effectively.
+                </p>
+            </div>
+            <div class="problem-item">
+                <i class="fas fa-users"></i>
+                <h3>Standing Out</h3>
+                <p>
+                    With competition fierce, it's challenging for job
+                    seekers to create stories that make them stand out from
+                    other candidates.
+                </p>
+            </div>
+        </div>
+        <h2>Why Choose Us?</h2>
+        <div class="solution-list">
+            <div class="solution-item">
+                <i class="fas fa-bolt"></i>
+                <h3>Fast and Easy</h3>
+                <p>
+                    Generate stories in seconds with our user-friendly
+                    interface.
+                </p>
+            </div>
+            <div class="solution-item">
+                <i class="fas fa-brain"></i>
+                <h3>AI-Powered</h3>
+                <p>
+                    Our advanced AI generates unique and tailored stories.
+                </p>
+            </div>
+            <div class="solution-item">
+                <i class="fas fa-star"></i>
+                <h3>Stand Out</h3>
+                <p>
+                    Impress interviewers with memorable and impactful
+                    stories.
+                </p>
+            </div>
+        </div>
+    </section>
+   <section id="pricing" class="pricing">
+    <div class="pricing-plan">
+        <h2>Starter</h2>
+        <p>Generate up to 5 stories</p>
+        <div class="price">$0</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>5 tailored behavioral stories</li>
+        </ul>
+        <a href="#" class="cta-button" id="getStartedBtn">Get Started for free</a>
+    </div>
+    <div class="pricing-plan">
+        <h2>Pro</h2>
+        <p>Generate up to 20 stories</p>
+        <div class="price">$5.99</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>20 tailored behavioral stories</li>
+        </ul>
+        <a href="#" id="buyNowBtn" class="cta-button">Buy Now</a>
+    </div>
+    <div class="pricing-plan">
+        <h2>All-In</h2>
+        <p>Generate unlimited stories with a one-time fee</p>
+        <div class="price">$9.99</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>Priority support</li>
+            <li>Unlimited tailored behavioral stories</li>
+        </ul>
+        <a href="#" id="unlimitedBtn" class="cta-button">Buy Now</a>
+    </div>
+</section>
+ <footer id="contact">
+        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+            <p style="margin-bottom: 10px;">© 2023 Behavioraly AI. All rights reserved.</p>
+            <div style="display: flex; align-items: center;">
+                <p style="margin-right: 10px; font-size: 14px;">Contact:</p>
+                <p style="font-size: 14px;">hello@behavioraly.ai | Phone: (555) 123-4567</p>
+            </div>
+        </div>
+    </footer>
+<div id="modal" class="modal">
+<div class="modal-content">
+<span class="close">×</span>
+<form id="experienceForm" action="/analyze" method="POST">
+<div class="form-group">
+<label for="experience">Work Experience:</label>
+<textarea
+                         id="experience"
+                         name="experience"
+                         rows="6"
+                         placeholder="Describe your work experience here..."
+                         required
+                     ></textarea>
+</div>
+<div class="form-group">
+<label for="company_blurb">Company Blurb:</label>
+<input
+                         type="text"
+                         id="company_blurb"
+                         name="company_blurb"
+                         placeholder="A brief description of the company..."
+                         required
+                     />
+</div>
+<div class="form-group">
+<label for="role">Role:</label>
+<input
+                         type="text"
+                         id="role"
+                         name="role"
+                         placeholder="The role you worked at..."
+                         required
+                     />
+</div>
+<div class="form-group">
+<label for="question">Behavioral Question:</label>
+<input
+                         type="text"
+                         id="question"
+                         name="question"
+                         placeholder="Enter your behavioral question..."
+                         required
+                     />
+</div>
+<div class="plan-info">
+        <h3>Your Plan</h3>
+        <p class="plan-name">{{ plan }}</p>
+        {% if remaining_credits >= 0 %}
+            <div class="remaining-credits">
+                <span class="credits-label">Remaining Credits:</span>
+                <span class="credits-value">{{ remaining_credits }}</span>
+            </div>
+        {% else %}
+            <p class="unlimited-credits">Unlimited Credits</p>
+        {% endif %}
+    </div>
+<button type="submit" class="submit-btn">
+Analyze My Experience
+</button>
+</form>
+</div>
+</div>
+<script>
+
+var modal = document.getElementById("modal");
+var openModalBtn = document.getElementById("openModal");
+var closeBtn = document.getElementsByClassName("close")[0];
+var buyNowBtn = document.getElementById("buyNowBtn");
+var getStartedBtn = document.getElementById("getStartedBtn");
+var unlimitedBtn = document.getElementById("unlimitedBtn");
+window.onload = function() {
+        {% if logged_in or payment_completed %}
+            modal.style.display = "block";
+        {% endif %}
+    };
+
+unlimitedBtn.addEventListener("click", function() {
+    // Check if the user is logged in
+    {% if session %}
+        // User is logged in, proceed with the Stripe checkout
+        fetch("/create-checkout-session?unlimited=true", {
+            method: "POST",
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(session) {
+            return stripe.redirectToCheckout({
+                sessionId: session.sessionId
+            });
+        })
+        .then(function(result) {
+            if (result.error) {
+                alert(result.error.message);
+            }
+        })
+        .catch(function(error) {
+            console.error("Error:", error);
+        });
+    {% else %}
+        // User is not logged in, redirect to the login page
+        window.location.href = "/login";
+    {% endif %}
+});
+
+
+openModalBtn.onclick = function() {
+    // Check if the user is logged in
+    {% if session %}
+        // User is logged in, open the modal
+        modal.style.display = "block";
+    {% else %}
+        // User is not logged in, redirect to the login page
+        window.location.href = "/login";
+    {% endif %}
+};
+getStartedBtn.onclick = function() {
+    // Check if the user is logged in
+    {% if session %}
+        // User is logged in, open the modal
+        modal.style.display = "block";
+    {% else %}
+        // User is not logged in, redirect to the login page
+        window.location.href = "/login";
+    {% endif %}
+};
+
+// ... (rest of the code remains the same)
+closeBtn.onclick = function() {
+modal.style.display = "none";
+}
+window.onclick = function(event) {
+if (event.target == modal) {
+modal.style.display = "none";
+}
+}
+var stripe = Stripe("pk_test_51P2NaoRsyNEomGjpM6JdVNaPqwnpINQqWOdCFVSJWfDXJuzNhibamBY75UF1qWB42F2l4cI20S68NbGK1nkQL9yN00Xhq1naJg");
+buyNowBtn.addEventListener("click", function() {
+fetch("/create-checkout-session", {
+method: "POST",
+}).then(function(response) {
+return response.json();
+}).then(function(session) {
+return stripe.redirectToCheckout({
+sessionId: session.sessionId
+});
+}).then(function(result) {
+if (result.error) {
+alert(result.error.message);
+}
+}).catch(function(error) {
+console.error("Error:", error);
+});
+});
+// Smooth scrolling for navigation links
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        document.querySelector(this.getAttribute('href')).scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    });
+                });
+    </script>
+</body>
+</html>
