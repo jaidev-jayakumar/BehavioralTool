@@ -2,24 +2,22 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import stripe
 import anthropic
 import logging
-import json
-from os import environ as env
+import time
+from os import environ
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
-from dotenv import find_dotenv, load_dotenv
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = 'b6527e007ea0e41032f93e5facc4543ecaa947553013efc79694c03a08eb59c9'
 
-
-ENV_FILE = find_dotenv('text.env')
-if ENV_FILE:
-    load_dotenv(ENV_FILE)
+# Load environment variables from text.env
+load_dotenv('text.env')
 
 # Configure Stripe
-stripe.api_key = "sk_test_51P2NaoRsyNEomGjpR1XrqWhHuKIYgYYCNjH4F77QrKoBs0KJ875Ag286Pt6SZUCEDuSGy84PwBpPPHdTacDmPy9b00PTJBJy0S"
+stripe.api_key = environ.get("STRIPE_SECRET_KEY")
 
-claude = anthropic.Client(api_key="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")
+claude = anthropic.Client(api_key=environ.get("ANTHROPIC_API_KEY"))
 
 oauth = OAuth(app)
 oauth.register(
