@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Behavioraly AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1, h2 {
+            color: #623AA2;
+        }
+        .profile-info, .credits-info, .transaction-history {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .credits-info {
+            background-color: #e0e0e0;
+        }
+        a {
+            color: #F97794;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #623AA2;
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #F97794;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #623AA2;
+            color: white;
+            text-decoration: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .plan-option {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .plan-option:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Profile</h1>
+    {% if session %}
+        <div class="profile-info">
+            <h2>Welcome, {{ session.userinfo.name }}!</h2>
+            <p><strong>Email:</strong> {{ session.userinfo.email }}</p>
+            <p><strong>Current Plan:</strong> {{ user_role }}</p>
+        </div>
+        <div class="credits-info">
+            <h2>Credits Information</h2>
+            {% if remaining_credits == -1 %}
+                <p>You have unlimited credits with your All-In plan!</p>
+            {% else %}
+                <p><strong>Remaining Credits:</strong> {{ remaining_credits }}</p>
+                {% if user_role != 'All-In' %}
+                    <p><a href="#" class="btn" id="upgradePlanBtn">Upgrade your plan</a> for more credits!</p>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% if transactions %}
+            <div class="transaction-history">
+                <h2>Recent Transactions</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Plan</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ transaction.plan }}</td>
+                                <td>${{ "%.2f"|format(transaction.amount) }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% else %}
+        <p>Please <a href="/login">log in</a> to view your profile.</p>
+    {% endif %}
+    <p><a href="/">Back to Home</a></p>
+
+    <!-- Plan Selection Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Choose Your Plan</h2>
+            <div class="plan-option" data-plan="Pro">
+                <h3>Pro Plan</h3>
+                <p>20 credits for $5.99</p>
+            </div>
+            <div class="plan-option" data-plan="All-In">
+                <h3>All-In Plan</h3>
+                <p>Unlimited credits for $9.99</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe("pk_test_51P2NaoRsyNEomGjpM6JdVNaPqwnpINQqWOdCFVSJWfDXJuzNhibamBY75UF1qWB42F2l4cI20S68NbGK1nkQL9yN00Xhq1naJg");
+        var upgradePlanBtn = document.getElementById("upgradePlanBtn");
+        var modal = document.getElementById("planModal");
+        var span = document.getElementsByClassName("close")[0];
+        var planOptions = document.getElementsByClassName("plan-option");
+
+        if (upgradePlanBtn) {
+            upgradePlanBtn.onclick = function() {
+                modal.style.display = "block";
+            }
+        }
+
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        for (var i = 0; i < planOptions.length; i++) {
+            planOptions[i].onclick = function() {
+                var plan = this.getAttribute('data-plan');
+                handlePayment(plan === 'All-In');
+            }
+        }
+
+        function handlePayment(isUnlimited) {
+            fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
+                method: "POST",
+            }).then(function(response) {
+                return response.json();
+            }).then(function(session) {
+                return stripe.redirectToCheckout({ sessionId: session.sessionId });
+            }).then(function(result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            }).catch(function(error) {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+</body>
+</html>

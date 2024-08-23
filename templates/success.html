@@ -1,55 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Successful</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Behavioraly AI - Compelling Behavioral Stories in Seconds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #F97794, #623AA2);
-            color: #FFFFFF;
+        :root {
+            --primary-color: #623AA2;
+            --secondary-color: #F97794;
+            --text-color: #FFFFFF;
+            --background-color: #1F1F1F;
+        }
+
+        body, html {
+            font-family: "Inter", sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             line-height: 1.6;
             margin: 0;
             padding: 0;
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: transparent;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        header.scrolled {
+            background-color: rgba(31, 31, 31, 0.95);
+        }
+
+        nav {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .logo:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin-left: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #F97794, #623AA2);
+            height: 100vh;
+            display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            height: 100vh;
         }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
         h1 {
             font-size: 48px;
             font-weight: 700;
             margin-bottom: 20px;
+            line-height: 1.2;
         }
-        p {
+
+        h1 span {
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        h1 span::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -10px;
+            height: 4px;
+            background: linear-gradient(90deg, #FFA500, #FF4500);
+            opacity: 0.8;
+        }
+
+        .hero p {
             font-size: 24px;
             margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        a {
+
+        .cta-button {
             display: inline-block;
-            background-color: #FFFFFF;
+            background-color: var(--text-color);
             color: #623AA2;
             padding: 15px 30px;
             border-radius: 50px;
             text-decoration: none;
             font-size: 18px;
             font-weight: 600;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        a:hover {
-            background-color: #F97794;
-            color: #FFFFFF;
+
+        .cta-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-3px);
+        }
+
+        .features {
+            padding: 80px 0;
+            background-color: #2A2A2A;
+        }
+
+        .features h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .feature-item {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-item i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .feature-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .feature-item p {
+            font-size: 16px;
+            color: #CCCCCC;
+        }
+
+        .pricing {
+            padding: 80px 0;
+            background-color: var(--background-color);
+        }
+
+        .pricing h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 60px;
+            text-align: center;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .pricing-plan {
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-plan:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-plan::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .pricing-plan h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .pricing-plan .price {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+
+        .pricing-plan ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+            flex-grow: 1;
+        }
+
+        .pricing-plan ul li {
+            margin-bottom: 10px;
+            color: #CCCCCC;
+        }
+
+        .pricing-plan .cta-button {
+            align-self: center;
+        }
+
+        footer {
+            background-color: #1A1A1A;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-right: 20px;
+        }
+
+        .footer-links a {
+            color: #CCCCCC;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .social-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .social-links li {
+            margin-left: 20px;
+        }
+
+        .social-links a {
+            color: #CCCCCC;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .feature-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-links,
+            .social-links {
+                margin-top: 20px;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Payment Successful!</h1>
-    <p>Thank you for your purchase.</p>
-    <a href="/">Go Back to Home</a>
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">Behavioraly AI</a>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    {% if session %}
+                    <li><a href="/logout">Logout</a></li>
+                    {% else %}
+                    <li><a href="/login">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Compelling Behavioral Stories in <span>10 Seconds</span></h1>
+                <p>Receive tailored, compelling behavioral stories based on your work experience</p>
+                <a href="#" id="openModal" class="cta-button">Get started for free</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Why Choose Behavioraly AI?</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Lightning Fast</h3>
+                    <p>Generate impactful stories in seconds, saving you hours of preparation time.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI-Powered Insights</h3>
+                    <p>Our advanced AI analyzes your experiences to create unique, tailored narratives.</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Stand Out</h3>
+                    <p>Impress interviewers with memorable and impactful stories that highlight your strengths.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2>Choose Your Plan</h2>
+            <div class="pricing-grid">
+                <div class="pricing-plan">
+                    <h3>Starter</h3>
+                    <div class="price">$0</div>
+                    <ul>
+                        <li>5 AI-generated stories</li>
+                        <li>Basic customization</li>
+                        <li>24/7 AI assistance</li>
+                    </ul>
+                    <a href="#" class="cta-button" id="getStartedBtn">Get Started</a>
+                </div>
+                <div class="pricing-plan">
+                    <h3>Pro</h3>
+                    <div class="price">$5.99</div>
+                    <ul>
+                        <li>20 AI-generated stories</li>
+                        <li>Advanced customization</li>
+                        <li>Priority AI assistance</li>
+                        <li>Performance analytics</li>
+                    </ul>
+                    <a href="#" id="buyNowBtn" class="cta-button">Buy Now</a>
+                </div>
+                <div class="pricing-plan">
+                    <h3>All-In</h3>
+                    <div class="price">$9.99</div>
+                    <ul>
+                        <li>Unlimited AI-generated stories</li>
+                        <li>Premium customization</li>
+                        <li>24/7 human support</li>
+                        <li>Advanced analytics & insights</li>
+                        <li>Interview simulation tool</li>
+                    </ul>
+                    <a href="#" id="unlimitedBtn" class="cta-button">Buy Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2023 Behavioraly AI. All rights reserved.</p>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                    <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Modal functionality
+        var modal = document.getElementById("modal");
+        var openModalBtn = document.getElementById("openModal");
+        var closeBtn = document.getElementsByClassName("close")[0];
+        var buyNowBtn = document.getElementById("buyNowBtn");
+        var getStartedBtn = document.getElementById("getStartedBtn");
+        var unlimitedBtn = document.getElementById("unlimitedBtn");
+
+        window.onload = function() {
+            {% if logged_in or payment_completed %}
+                modal.style.display = "block";
+            {% endif %}
+        };
+
+        openModalBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                window.location.href = "/login";
+            {% endif %}
+        };
+
+        getStartedBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                window.location.href = "/login";
+            {% endif %}
+        };
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Stripe integration
+        var stripe = Stripe("pk_test_51P2NaoRsyNEomGjpM6JdVNaPqwnpINQqWOdCFVSJWfDXJuzNhibamBY75UF1qWB42F2l4cI20S68NbGK1nkQL9yN00Xhq1naJg");
+
+        buyNowBtn.addEventListener("click", function() {
+            fetch("/create-checkout-session", {
+                method: "POST",
+            }).then(function(response) {
+                return response.json();
+            }).then(function(session) {
+                return stripe.redirectToCheckout({
+                    sessionId: session.sessionId
+                });
+            }).then(function(result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            }).catch(function(error) {
+                console.error("Error:", error);
+            });
+        });
+
+        unlimitedBtn.addEventListener("click", function() {
+            {% if session %}
+                fetch("/create-checkout-session?unlimited=true", {
+                    method: "POST",
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(session) {
+                    return stripe.redirectToCheckout({
+                        sessionId: session.sessionId
+                    });
+                }).then(function(result) {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                }).catch(function(error) {
+                    console.error("Error:", error);
+                });
+            {% else %}
+                window.location.href = "/login";
+            {% endif %}
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    const headerOffset = 100; // Adjust this value based on your header height
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Header background change on scroll
+        window.addEventListener('scroll', function() {
+            var header = document.querySelector('header');
+            header.classList.toggle('scrolled', window.scrollY > 0);
+        });
+    </script>
 </body>
 </html>
