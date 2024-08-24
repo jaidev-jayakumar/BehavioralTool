@@ -124,7 +124,7 @@ def login():
         session['checkout_after_login'] = action
     
     return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for("callback", _external=True)
+        redirect_uri="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/callback"
     )
 
 @app.route("/callback", methods=["GET", "POST"])
@@ -150,7 +150,7 @@ def logout():
     return redirect(
         "https://dev-jb8yhreazf12vlqi.us.auth0.com/v2/logout?" + urlencode(
             {
-                "returnTo": url_for("home", _external=True),
+                "returnTo": "https://behavioraly-2cf2a6aaa2fc.herokuapp.com/",
                 "client_id": "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U",
             },
             quote_via=quote_plus,
@@ -239,8 +239,8 @@ def create_checkout_session():
                 'quantity': 1,
             }],
             mode='payment',
-            success_url=request.host_url + 'success?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=request.host_url + 'cancel',
+            success_url="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/cancel",
             client_reference_id=user_id,
             customer_email=user_email,
             metadata={
