@@ -1,4 +1,5 @@
 import os
+from flask_migrate import Migrate
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
@@ -12,11 +13,20 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure secret key
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
-    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
+
+# Database configuration
+database_url = os.environ.get('DATABASE_URL')
+if database_url is None:
+    # Use a local SQLite database for development
+    database_url = 'sqlite:///your_local_database.db'
+elif database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Configure Stripe
 stripe.api_key = "sk_test_51P2NaoRsyNEomGjpR1XrqWhHuKIYgYYCNjH4F77QrKoBs0KJ875Ag286Pt6SZUCEDuSGy84PwBpPPHdTacDmPy9b00PTJBJy0S"
