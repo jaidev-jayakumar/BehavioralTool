@@ -124,25 +124,30 @@ def login():
         session['checkout_after_login'] = action
     
     return oauth.auth0.authorize_redirect(
-        redirect_uri="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/callback"
+        redirect_uri=f"{request.scheme}://{request.host}/callback"
     )
 
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
-    token = oauth.auth0.authorize_access_token()
-    session["user"] = token
-    
-    user = User.query.get(token['userinfo']['sub'])
-    if not user:
-        user = User(id=token['userinfo']['sub'], email=token['userinfo']['email'])
-        db.session.add(user)
-        db.session.commit()
-    
-    checkout_action = session.pop('checkout_after_login', None)
-    if checkout_action:
-        return redirect(url_for('home', checkout_after_login=checkout_action))
-    
-    return redirect("/")
+    try:
+        token = oauth.auth0.authorize_access_token()
+        app.logger.info(f"Token received: {token}")
+        session["user"] = token
+        
+        user = User.query.get(token['userinfo']['sub'])
+        if not user:
+            user = User(id=token['userinfo']['sub'], email=token['userinfo']['email'])
+            db.session.add(user)
+            db.session.commit()
+        
+        checkout_action = session.pop('checkout_after_login', None)
+        if checkout_action:
+            return redirect(url_for('home', checkout_after_login=checkout_action))
+        
+        return redirect("/")
+    except Exception as e:
+        app.logger.error(f"Error in callback: {str(e)}")
+        return f"An error occurred: {str(e)}", 500
 
 @app.route("/logout")
 def logout():
