@@ -14,6 +14,14 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure secret key
 
+from flask import request, redirect
+
+@app.before_request
+def redirect_www():
+    urlparts = request.url.split('://')
+    if urlparts[1].startswith('www.'):
+        return redirect('https://' + urlparts[1][4:], code=301)
+
 # Database configuration
 database_url = os.environ.get('DATABASE_URL')
 if database_url is None:
@@ -165,7 +173,7 @@ def logout():
     return redirect(
         "https://dev-jb8yhreazf12vlqi.us.auth0.com/v2/logout?" + urlencode(
             {
-                "returnTo": "https://behavioraly-2cf2a6aaa2fc.herokuapp.com/",
+                "returnTo": "https://behai.ai/",
                 "client_id": "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U",
             },
             quote_via=quote_plus,
@@ -254,8 +262,8 @@ def create_checkout_session():
                 'quantity': 1,
             }],
             mode='payment',
-            success_url="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/success?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url="https://behavioraly-2cf2a6aaa2fc.herokuapp.com/cancel",
+            success_url="https://behai.ai/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url="https://behai.ai/cancel",
             client_reference_id=user_id,
             customer_email=user_email,
             metadata={
