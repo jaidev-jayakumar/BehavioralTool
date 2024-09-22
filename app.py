@@ -29,7 +29,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 # Configure Stripe
-stripe.api_key = "sk_test_51P2NaoRsyNEomGjpR1XrqWhHuKIYgYYCNjH4F77QrKoBs0KJ875Ag286Pt6SZUCEDuSGy84PwBpPPHdTacDmPy9b00PTJBJy0S"
+stripe.api_key = "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"
 
 # Configure Anthropic
 claude = anthropic.Client(api_key="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")
@@ -247,7 +247,7 @@ def create_checkout_session():
                 'price_data': {
                     'currency': 'usd',
                     'product_data': {
-                        'name': f'Behavioraly.ai {plan_name} Plan',
+                        'name': f'Behai.ai {plan_name} Plan',
                     },
                     'unit_amount': amount,
                 },
