@@ -51,7 +51,7 @@ oauth.register(
     client_kwargs={
         "scope": "openid profile email",
     },
-    server_metadata_url='https://dev-jb8yhreazf12vlqi.us.auth0.com/.well-known/openid-configuration'
+    server_metadata_url='https://auth.behai.ai/.well-known/openid-configuration'
 )
 
 # Database Models
