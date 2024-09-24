@@ -173,7 +173,7 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        var stripe = Stripe("pk_test_51P2NaoRsyNEomGjpM6JdVNaPqwnpINQqWOdCFVSJWfDXJuzNhibamBY75UF1qWB42F2l4cI20S68NbGK1nkQL9yN00Xhq1naJg");
+        var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
         var upgradePlanBtn = document.getElementById("upgradePlanBtn");
         var modal = document.getElementById("planModal");
         var span = document.getElementsByClassName("close")[0];
@@ -215,6 +215,7 @@
                 }
             }).catch(function(error) {
                 console.error("Error:", error);
+                alert("An error occurred. Please try again.");
             });
         }
     </script>
