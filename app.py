@@ -137,13 +137,15 @@ def home():
 
 @app.route('/login')
 def login():
-    action = request.args.get('action')
-    if action in ['pro', 'unlimited']:
-        session['checkout_after_login'] = action
+    params = {
+        'client_id': 'CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U',
+        'response_type': 'code',
+        'redirect_uri': 'https://behai.ai/callback',
+        'scope': 'openid profile email',
+    }
     
-    return oauth.auth0.authorize_redirect(
-        redirect_uri=f"{request.scheme}://{request.host}/callback"
-    )
+    auth0_domain = 'auth.behai.ai'
+    return redirect(f'https://{auth0_domain}/authorize?{urlencode(params)}')
 
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
