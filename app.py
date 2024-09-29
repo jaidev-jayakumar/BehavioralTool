@@ -10,28 +10,22 @@ import anthropic
 import logging
 from functools import wraps
 from datetime import datetime
+import secrets
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with a secure secret key
 
-from flask import request, redirect
-
-@app.before_request
-def redirect_www():
-    urlparts = request.url.split('://')
-    if urlparts[1].startswith('www.'):
-        return redirect('https://' + urlparts[1][4:], code=301)
-
 # Database configuration
 database_url = os.environ.get('DATABASE_URL')
 if database_url is None:
-    # Use a local SQLite database for development
     database_url = 'sqlite:///your_local_database.db'
 elif database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -83,6 +77,12 @@ def requires_auth(f):
             return redirect('/login')
         return f(*args, **kwargs)
     return decorated
+
+@app.before_request
+def redirect_www():
+    urlparts = request.url.split('://')
+    if urlparts[1].startswith('www.'):
+        return redirect('https://' + urlparts[1][4:], code=301)
 
 @app.route('/profile')
 @requires_auth
@@ -137,16 +137,18 @@ def home():
 
 @app.route('/login')
 def login():
-    action = request.args.get('action')
-    if action in ['pro', 'unlimited']:
-        session['checkout_after_login'] = action
-    
+    state = secrets.token_urlsafe(16)
+    session['oauth_state'] = state
     return oauth.auth0.authorize_redirect(
-        redirect_uri=f"{request.scheme}://{request.host}/callback"
+        redirect_uri=f"{request.scheme}://{request.host}/callback",
+        state=state
     )
 
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
+    if 'oauth_state' not in session or session['oauth_state'] != request.args.get('state'):
+        return "Invalid state parameter", 400
+    
     try:
         token = oauth.auth0.authorize_access_token()
         app.logger.info(f"Token received: {token}")
@@ -171,7 +173,7 @@ def callback():
 def logout():
     session.clear()
     return redirect(
-        "https://dev-jb8yhreazf12vlqi.us.auth0.com/v2/logout?" + urlencode(
+        "https://auth.behai.ai/v2/logout?" + urlencode(
             {
                 "returnTo": "https://behai.ai/",
                 "client_id": "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U",
@@ -306,7 +308,6 @@ def success():
     else:
         flash("No checkout session found. If you've made a payment, please contact support.", "warning")
     
-    # Redirect to home page instead of rendering success.html
     return redirect(url_for('home'))
 
 @app.route('/cancel')
