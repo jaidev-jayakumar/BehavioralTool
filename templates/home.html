@@ -699,41 +699,60 @@
 
 <script>
     var modal = document.getElementById("modal");
-  var openModalBtn = document.getElementById("openModal");
-        if (openModalBtn) {
-            openModalBtn.onclick = function() {
-                modal.style.display = "block";
-            };
-        }
+    var openModalBtn = document.getElementById("openModal");
     var closeBtn = document.getElementsByClassName("close")[0];
     var buyNowBtn = document.getElementById("buyNowBtn");
     var getStartedBtn = document.getElementById("getStartedBtn");
     var unlimitedBtn = document.getElementById("unlimitedBtn");
 
-    window.onload = function() {
-        {% if logged_in or payment_completed %}
-            modal.style.display = "block";
-        {% endif %}
-    };
+    function redirectToLogin(action) {
+        window.location.href = "/login?action=" + action;
+    }
 
-    openModalBtn.onclick = function() {
-        {% if session %}
-            modal.style.display = "block";
-        {% else %}
-            window.location.href = "/login";
-        {% endif %}
-    };
+    if (openModalBtn) {
+        openModalBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                redirectToLogin('generate');
+            {% endif %}
+        };
+    }
 
-    getStartedBtn.onclick = function() {
-        {% if session %}
-            modal.style.display = "block";
-        {% else %}
-            window.location.href = "/login";
-        {% endif %}
-    };
+    if (getStartedBtn) {
+        getStartedBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                redirectToLogin('starter');
+            {% endif %}
+        };
+    }
 
-    closeBtn.onclick = function() {
-        modal.style.display = "none";
+    if (buyNowBtn) {
+        buyNowBtn.onclick = function() {
+            {% if session %}
+                handlePayment(false);
+            {% else %}
+                redirectToLogin('pro');
+            {% endif %}
+        };
+    }
+
+    if (unlimitedBtn) {
+        unlimitedBtn.onclick = function() {
+            {% if session %}
+                handlePayment(true);
+            {% else %}
+                redirectToLogin('unlimited');
+            {% endif %}
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
     }
 
     window.onclick = function(event) {
@@ -744,46 +763,31 @@
 
     // Stripe integration
     var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
-    var buyNowBtn = document.getElementById("buyNowBtn");
-    var unlimitedBtn = document.getElementById("unlimitedBtn");
 
     function handlePayment(isUnlimited) {
-        {% if session %}
-            fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }).then(function(response) {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            }).then(function(session) {
-                return stripe.redirectToCheckout({
-                    sessionId: session.sessionId
-                });
-            }).then(function(result) {
-                if (result.error) {
-                    alert(result.error.message);
-                }
-            }).catch(function(error) {
-                console.error("Error:", error);
-                alert("An error occurred. Please try again.");
+        fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }).then(function(response) {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        }).then(function(session) {
+            return stripe.redirectToCheckout({
+                sessionId: session.sessionId
             });
-        {% else %}
-            // Redirect to login page with a parameter indicating the intended action
-            window.location.href = "/login?action=" + (isUnlimited ? "unlimited" : "pro");
-        {% endif %}
+        }).then(function(result) {
+            if (result.error) {
+                alert(result.error.message);
+            }
+        }).catch(function(error) {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+        });
     }
-
-    buyNowBtn.addEventListener("click", function() {
-        handlePayment(false);
-    });
-
-    unlimitedBtn.addEventListener("click", function() {
-        handlePayment(true);
-    });
 
     // Check if we need to trigger Stripe checkout after login
     {% if session and checkout_after_login %}
@@ -792,29 +796,29 @@
 
     // Smooth scrolling for navigation links
     document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
 
-        const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
 
-        if (targetElement) {
-            const headerHeight = document.querySelector('header').offsetHeight;
-            const elementPosition = targetElement.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+            if (targetElement) {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
 
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth'
-            });
-        }
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
     });
-});
 
     window.addEventListener('scroll', function() {
-    var header = document.querySelector('header');
-    header.classList.toggle('scrolled', window.scrollY > 0);
-});
+        var header = document.querySelector('header');
+        header.classList.toggle('scrolled', window.scrollY > 0);
+    });
 </script>
 </body>
 </html>
