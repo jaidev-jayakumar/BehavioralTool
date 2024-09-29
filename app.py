@@ -222,7 +222,7 @@ def result():
 def update_question():
     user_id = session['user']['userinfo']['sub']
     if not check_and_update_credits(user_id):
-        return jsonify(error="You've reached your credit limit. Please upgrade your plan."), 403
+        return jsonify(error="You've used all your credits. Please upgrade your plan for more.", redirect="/"), 403
 
     question = request.json['question']
     experience_text = request.json['experience_text']

@@ -134,8 +134,6 @@
             <a href="/" class="logo">Behai AI</a>
             <ul class="nav-links">
                 <li><a href="/">Home</a></li>
-                <li><a href="#">Pricing</a></li>
-                <li><a href="#">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -158,31 +156,40 @@
         <p>&copy; 2023 Behavioraly.ai. All rights reserved</p>
     </footer>
 
-    <script>
-        const answerElement = document.getElementById('answer');
-        const questionForm = document.getElementById('questionForm');
+<script>
+    const answerElement = document.getElementById('answer');
+    const questionForm = document.getElementById('questionForm');
 
-        questionForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const question = document.getElementById('question').value;
-            const experience_text = document.querySelector('input[name="experience_text"]').value;
-            const company_blurb = document.querySelector('input[name="company_blurb"]').value;
-            const role = document.querySelector('input[name="role"]').value;
-            fetch('/update_question', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ question: question, experience_text: experience_text, company_blurb: company_blurb, role: role })
-            })
-            .then(response => response.json())
-            .then(data => {
+    questionForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const question = document.getElementById('question').value;
+        const experience_text = document.querySelector('input[name="experience_text"]').value;
+        const company_blurb = document.querySelector('input[name="company_blurb"]').value;
+        const role = document.querySelector('input[name="role"]').value;
+        fetch('/update_question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ question: question, experience_text: experience_text, company_blurb: company_blurb, role: role })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error && data.redirect) {
+                // Redirect to home page if out of credits
+                window.location.href = data.redirect;
+            } else if (data.error) {
+                // Handle other errors
+                answerElement.innerText = "Error: " + data.error;
+            } else {
                 answerElement.innerText = data.answer;
-            })
-            .catch(error => {
-                console.error('Error updating question:', error);
-            });
+            }
+        })
+        .catch(error => {
+            console.error('Error updating question:', error);
+            answerElement.innerText = "An error occurred. Please try again.";
         });
-    </script>
+    });
+</script>
 </body>
 </html>
