@@ -320,7 +320,7 @@ def generate_answer(question, experience_text, company_blurb, role):
     response = claude.completions.create(
         prompt=prompt,
         stop_sequences=["\n\nHuman:"],
-        model="claude-v1",
+        model="claude-3-sonnet-20240229-v1",
         max_tokens_to_sample=400
     )
 
