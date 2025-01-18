@@ -1,3 +1,7 @@
-text.env
-
 .env
+text.env
+text.env.rtf
+__pycache__
+*.pyc
+instance/
+.DS_Store
