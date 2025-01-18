@@ -6,7 +6,7 @@ from authlib.integrations.flask_client import OAuth
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
 import stripe
-import anthropic
+from anthropic import Anthropic
 import logging
 from functools import wraps
 from datetime import datetime, timedelta
@@ -33,8 +33,10 @@ migrate = Migrate(app, db)
 # Configure Stripe
 stripe.api_key = "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"
 
-# Configure Anthropic
-claude = anthropic.Client(api_key="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")
+# Configure Anthropic with new client
+anthropic_client = Anthropic(
+    api_key="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"
+)
 
 # Configure Auth0
 oauth = OAuth(app)
@@ -316,15 +318,43 @@ def cancel():
     return render_template('cancel.html')
 
 def generate_answer(question, experience_text, company_blurb, role):
-    prompt = f"{anthropic.HUMAN_PROMPT}Generate a detailed, compelling behavioral answer in the STAR format (Situation, Task, Action, Result) for the following question based on the candidate's provided experience, company blurb, and role. Focus on the specific experiences, skills, and impact mentioned in the candidate's input. Provide relevant examples and quantify results where possible, ensuring that the answer is consistent with the given experience, company, and role.\n\nFor questions about weaknesses, challenges, conflicts, or failures, frame the response to demonstrate self-awareness, problem-solving skills, personal growth, and lessons learned. Ensure the answer addresses the specific question asked, even if it requires discussing areas for improvement.\n\nQuestion: {question}\n\nCandidate's Experience: {experience_text}\n\nCompany Blurb: {company_blurb}\n\nRole: {role}\n\nPlease follow this format:\n\nSituation: [Describe a specific situation or context from the candidate's experience that is relevant to the question and role at the mentioned company]\n\nTask: [Explain the task, challenge, or responsibility the candidate needed to address in that situation while working in the specified role]\n\nAction: [Detail the specific actions the candidate took to address the situation, leveraging their skills and experiences from the provided experience. For questions about weaknesses or challenges, focus on steps taken to improve or overcome them.]\n\nResult: [Highlight the measurable outcomes or impact achieved through the candidate's actions, using metrics or examples from the candidate's experience where applicable. For questions about weaknesses or challenges, emphasize growth, lessons learned, or improvements made.]\n\nEnsure that the answer is consistent with the provided experience, company blurb, and role, does not mention any other companies or roles not specified by the user, and directly addresses the question asked, even if it's about weaknesses or challenges.\n\n{anthropic.AI_PROMPT}"    
-    response = claude.completions.create(
-        prompt=prompt,
-        stop_sequences=["\n\nHuman:"],
-        model="claude-3-sonnet-20240229",
-        max_tokens_to_sample=400
+    # Create the message content
+    message_content = f"""Generate a detailed, compelling behavioral answer in the STAR format (Situation, Task, Action, Result) for the following question based on the candidate's provided experience, company blurb, and role. Focus on the specific experiences, skills, and impact mentioned in the candidate's input. Provide relevant examples and quantify results where possible, ensuring that the answer is consistent with the given experience, company, and role.
+
+For questions about weaknesses, challenges, conflicts, or failures, frame the response to demonstrate self-awareness, problem-solving skills, personal growth, and lessons learned. Ensure the answer addresses the specific question asked, even if it requires discussing areas for improvement.
+
+Question: {question}
+
+Candidate's Experience: {experience_text}
+
+Company Blurb: {company_blurb}
+
+Role: {role}
+
+Please follow this format:
+
+Situation: [Describe a specific situation or context from the candidate's experience that is relevant to the question and role at the mentioned company]
+
+Task: [Explain the task, challenge, or responsibility the candidate needed to address in that situation while working in the specified role]
+
+Action: [Detail the specific actions the candidate took to address the situation, leveraging their skills and experiences from the provided experience. For questions about weaknesses or challenges, focus on steps taken to improve or overcome them.]
+
+Result: [Highlight the measurable outcomes or impact achieved through the candidate's actions, using metrics or examples from the candidate's experience where applicable. For questions about weaknesses or challenges, emphasize growth, lessons learned, or improvements made.]"""
+
+    # Create the message using the Messages API
+    message = anthropic_client.messages.create(
+        model="claude-3-5-sonnet-20241022",
+        max_tokens=400,
+        messages=[
+            {
+                "role": "user",
+                "content": message_content
+            }
+        ]
     )
 
-    return response.completion.strip()
+    # Return the response content
+    return message.content[0].text
 
 if __name__ == '__main__':
     with app.app_context():
