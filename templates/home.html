@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Behai AI - Compelling Behavioral Stories in 10 Seconds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        :root {
+            --primary-color: #623AA2;
+            --secondary-color: #F97794;
+            --text-color: #FFFFFF;
+            --background-color: #1F1F1F;
+        }
+
+        body, html {
+            font-family: "Inter", sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background-color: transparent;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+            padding: 20px 40px;
+        }
+
+        header.scrolled {
+            background-color: rgba(31, 31, 31, 0.95);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px; /* Increased max-width for more space */
+            margin: 0 auto;
+            }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s;
+            margin-right: auto;
+            padding-left: 20px; 
+        }
+
+        .logo:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li {
+            margin-left: 30px;
+        }
+
+        .nav-links li:last-child {
+    margin-right: 20px; /* Added right margin to the last nav item */
+}
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0 15px;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #F97794, #623AA2);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        h1 span {
+            position: relative;
+            display: inline-block;
+        }
+
+        h1 span::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -10px;
+            height: 4px;
+            background-color: var(--text-color);
+            opacity: 0.5;
+        }
+
+        .hero p {
+            font-size: 24px;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: var(--text-color);
+            color: #623AA2;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-3px);
+        }
+
+        .problems-solutions {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 60px auto;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .problems-solutions h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .problem-list {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .problem-item {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 10px;
+            width: 300px;
+            margin: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .problem-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .problem-item i {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .problem-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .problem-item p {
+            font-size: 18px;
+        }
+
+        .pricing {
+            display: flex;
+            justify-content: space-around;
+            align-items: stretch;
+            flex-wrap: nowrap;
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 60px 20px;
+        }
+
+        .pricing-plan {
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-plan:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-plan::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .pricing-plan h2,
+        .pricing-plan h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .pricing-plan .price {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--secondary-color);
+        }
+
+        .pricing-plan ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 30px;
+            flex-grow: 1;
+        }
+
+        .pricing-plan ul li {
+            margin-bottom: 10px;
+            color: #CCCCCC;
+        }
+
+        .pricing-plan .cta-button {
+            align-self: center;
+        }
+
+        .product-demo {
+    padding: 60px 0;
+    background-color: #2A2A2A;
+}
+
+.product-demo h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 36px;
+    color: var(--text-color);
+}
+
+.demo-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            background-color: #FFFFFF;
+            color: #333333;
+            margin: 10% auto;
+            padding: 40px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .close {
+            color: #999999;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #333333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            background-color: #F5F5F5;
+            color: #333333;
+            font-family: "Inter", sans-serif;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #623AA2;
+        }
+
+        .submit-btn {
+            background-color: #623AA2;
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+            margin-top: 0px;
+        }
+
+        .submit-btn:hover {
+            background-color: #F97794;
+        }
+
+        .welcome-message {
+            margin-left: 20px;
+            color: #FFF;
+            font-size: 1rem;
+            align-self: center;
+            white-space: nowrap;
+        }
+
+        .plan-info { 
+            text-align: center;
+            margin-top: 0px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .plan-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0px;
+            color: #FFFFFF;
+        }
+
+        .plan-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F97794;
+            margin-bottom: 0px;
+        }
+
+        .remaining-credits {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: #FFFFFF;
+        }
+
+        .credits-label {
+            margin-right: 5px;
+        }
+
+        .credits-value {
+            font-weight: 600;
+        }
+
+        .unlimited-credits {
+            font-size: 16px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        footer {
+            background-color: #1A1A1A;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-right: 20px;
+        }
+
+        .footer-links a {
+            color: #CCCCCC;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .social-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .social-links li {
+            margin-left: 20px;
+        }
+
+        .social-links a {
+            color: #CCCCCC;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 1024px) {
+            .nav-links li {
+                margin-left: 15px;
+            }
+
+            .welcome-message {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 18px;
+            }
+
+            .problem-list,
+            .pricing-plan {
+                width: 100%;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-links,
+            .social-links {
+                margin-top: 20px;
+            }
+            .flash-messages {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .flash-message.success { background-color: #d4edda; color: #155724; }
+        .flash-message.error { background-color: #f8d7da; color: #721c24; }
+        .flash-message.info { background-color: #d1ecf1; color: #0c5460; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+         <nav>
+            <a href="/" class="logo">Behai AI</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#contact">Contact</a></li>
+                {% if session %}
+                    <li><a href="/profile">Profile</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+    <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+  <section id="hero" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Compelling Behavioral Stories in <span>10 Seconds</span></h1>
+                <p>Receive tailored, compelling behavioral stories based on your work experience</p>
+                {% if session %}
+                    <a href="#" id="openModal" class="cta-button">Generate Story</a>
+                {% else %}
+                    <a href="/login" class="cta-button">Get started for free</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+ <section id="product-demo" class="product-demo">
+    <div class="container">
+        <div class="demo-container">
+            <div style="position: relative; box-sizing: content-box; max-height: 80vh; max-height: 80svh; width: 100%; aspect-ratio: 1.8274111675126903; padding: 40px 0 40px 0;">
+                <iframe src="https://app.supademo.com/embed/cm26whcnb0513vm5sugymr52l?embed_v=2" loading="lazy" title="Behai Demo" allow="clipboard-write" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+            </div>
+        </div>
+    </div>
+</section>   
+<section id="features" class="problems-solutions">
+    <h2>Problems Job Seekers Face</h2>
+    <div class="problem-list">
+        <div class="problem-item">
+            <i class="fas fa-clock"></i>
+            <h3>Time-Consuming</h3>
+            <p>Crafting impactful behavioral stories is a time-consuming task for job seekers, often taking hours of brainstorming and writing.</p>
+        </div>
+        <div class="problem-item">
+            <i class="fas fa-lightbulb"></i>
+            <h3>Lack of Inspiration</h3>
+            <p>Many job seekers struggle to come up with compelling stories that showcase their skills and experiences effectively.</p>
+        </div>
+        <div class="problem-item">
+            <i class="fas fa-users"></i>
+            <h3>Standing Out</h3>
+            <p>With competition fierce, it's challenging for job seekers to create stories that make them stand out from other candidates.</p>
+        </div>
+    </div>
+</section>
+
+<section id="pricing" class="pricing">
+    <div class="pricing-plan">
+        <h3>Starter</h3>
+        <p>Generate up to 5 stories</p>
+        <div class="price">$0</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>5 tailored behavioral stories</li>
+        </ul>
+        <a href="#" class="cta-button" id="getStartedBtn">Get Started for free</a>
+    </div>
+    <div class="pricing-plan">
+        <h3>Pro</h3>
+        <p>Generate up to 20 stories</p>
+        <div class="price">$5.99</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>20 tailored behavioral stories</li>
+        </ul>
+        <a href="#" id="buyNowBtn" class="cta-button">Buy Now</a>
+    </div>
+    <div class="pricing-plan">
+        <h3>All-In</h3>
+        <p>Generate unlimited stories with a one-time fee</p>
+        <div class="price">$9.99</div>
+        <ul>
+            <li>AI-powered generation</li>
+            <li>Customizable questions</li>
+            <li>Priority support</li>
+            <li>Unlimited tailored behavioral stories</li>
+        </ul>
+        <a href="#" id="unlimitedBtn" class="cta-button">Buy Now</a>
+    </div>
+</section>
+
+<footer id="contact">
+    <div class="container">
+        <div class="footer-content">
+            <p>Behai AI™ 2024. All rights reserved</p>
+            <ul class="footer-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <ul class="social-links">
+    <li><a href="mailto:behai@gmail.com"><i class="far fa-envelope"></i> Email Us</a></li>
+</ul>
+<div class="product-hunt-badge">
+                <a href="https://www.producthunt.com/products/behai-ai/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-behai&#0045;ai" target="_blank">
+                    <img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=615980&theme=light" 
+                         alt="Behai&#0032;AI - Compelling&#0032;Behavioral&#0032;Stories&#0032;in&#0032;10&#0032;Seconds | Product Hunt" 
+                         style="width: 250px; height: 54px;" width="250" height="54" />
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+{% if session %}
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <form id="experienceForm" action="/analyze" method="POST">
+                <div class="form-group">
+                    <label for="experience">Work Experience:</label>
+                    <textarea id="experience" name="experience" rows="6" placeholder="Describe your work experience here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="company_blurb">Company Blurb:</label>
+                    <input type="text" id="company_blurb" name="company_blurb" placeholder="A brief description of the company..." required />
+                </div>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <input type="text" id="role" name="role" placeholder="The role you worked at..." required />
+                </div>
+                <div class="form-group">
+                    <label for="question">Behavioral Question:</label>
+                    <input type="text" id="question" name="question" placeholder="Enter your behavioral question..." required />
+                </div>
+                <div class="plan-info">
+                    <h3>Your Plan</h3>
+                    <p class="plan-name">{{ plan }}</p>
+                    {% if remaining_credits >= 0 %}
+                        <div class="remaining-credits">
+                            <span class="credits-label">Remaining Credits:</span>
+                            <span class="credits-value">{{ remaining_credits }}</span>
+                        </div>
+                    {% else %}
+                        <p class="unlimited-credits">Unlimited Credits</p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="submit-btn">Analyze My Experience</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+<script>
+    var modal = document.getElementById("modal");
+    var openModalBtn = document.getElementById("openModal");
+    var closeBtn = document.getElementsByClassName("close")[0];
+    var buyNowBtn = document.getElementById("buyNowBtn");
+    var getStartedBtn = document.getElementById("getStartedBtn");
+    var unlimitedBtn = document.getElementById("unlimitedBtn");
+
+    function redirectToLogin(action) {
+        window.location.href = "/login?action=" + action;
+    }
+
+    if (openModalBtn) {
+        openModalBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                redirectToLogin('generate');
+            {% endif %}
+        };
+    }
+
+    if (getStartedBtn) {
+        getStartedBtn.onclick = function() {
+            {% if session %}
+                modal.style.display = "block";
+            {% else %}
+                redirectToLogin('starter');
+            {% endif %}
+        };
+    }
+
+    if (buyNowBtn) {
+        buyNowBtn.onclick = function() {
+            {% if session %}
+                handlePayment(false);
+            {% else %}
+                redirectToLogin('pro');
+            {% endif %}
+        };
+    }
+
+    if (unlimitedBtn) {
+        unlimitedBtn.onclick = function() {
+            {% if session %}
+                handlePayment(true);
+            {% else %}
+                redirectToLogin('unlimited');
+            {% endif %}
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    // Stripe integration
+    var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
+
+    function handlePayment(isUnlimited) {
+        fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        }).then(function(response) {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        }).then(function(session) {
+            return stripe.redirectToCheckout({
+                sessionId: session.sessionId
+            });
+        }).then(function(result) {
+            if (result.error) {
+                alert(result.error.message);
+            }
+        }).catch(function(error) {
+            console.error("Error:", error);
+            alert("An error occurred. Please try again.");
+        });
+    }
+
+    // Check if we need to trigger Stripe checkout after login
+    {% if session and checkout_after_login %}
+        handlePayment({{ 'true' if checkout_after_login == 'unlimited' else 'false' }});
+    {% endif %}
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement) {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    window.addEventListener('scroll', function() {
+        var header = document.querySelector('header');
+        header.classList.toggle('scrolled', window.scrollY > 0);
+    });
+</script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E5KX9Q5BKX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-E5KX9Q5BKX');
+</script>
+</body>
+</html>
