@@ -30,13 +30,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Configure Stripe
-stripe.api_key = "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"
-
-# Configure Anthropic with new client
-anthropic_client = Anthropic(
-    api_key="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"
-)
+# Instead of hardcoded keys
+stripe.api_key = os.environ.get('STRIPE_API_KEY')
+anthropic_client = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
 
 # Configure Auth0
 oauth = OAuth(app)
