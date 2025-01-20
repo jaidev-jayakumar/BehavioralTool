@@ -50,9 +50,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            max-width: 1400px; /* Increased max-width for more space */
+            max-width: 1400px;
             margin: 0 auto;
-            }
+        }
 
         .logo {
             font-size: 24px;
@@ -61,7 +61,7 @@
             text-decoration: none;
             transition: color 0.3s;
             margin-right: auto;
-            padding-left: 20px; 
+            padding-left: 20px;
         }
 
         .logo:hover {
@@ -73,6 +73,7 @@
             list-style: none;
             margin: 0;
             padding: 0;
+            align-items: center;
         }
 
         .nav-links li {
@@ -80,8 +81,8 @@
         }
 
         .nav-links li:last-child {
-    margin-right: 20px; /* Added right margin to the last nav item */
-}
+            margin-right: 20px;
+        }
 
         .nav-links a {
             color: var(--text-color);
@@ -89,6 +90,9 @@
             font-weight: 500;
             transition: color 0.3s;
             padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .nav-links a:hover {
@@ -281,54 +285,45 @@
             align-self: center;
         }
 
-        .product-demo {
-    padding: 60px 0;
-    background-color: #2A2A2A;
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    overflow-y: auto;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
 }
 
-.product-demo h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 36px;
-    color: var(--text-color);
+.modal.show {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 }
 
-.demo-container {
-    max-width: 1000px;
-    margin: 0 auto;
+.modal-content {
+    background-color: #FFFFFF;
+    color: #333333;
+    margin: 20px auto;
+    padding: 40px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    animation: modalFadeIn 0.3s ease-out;
 }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content {
-            background-color: #FFFFFF;
-            color: #333333;
-            margin: 10% auto;
-            padding: 40px;
-            border-radius: 10px;
-            width: 80%;
-            max-width: 600px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-            animation: modalFadeIn 0.3s;
-        }
-
         @keyframes modalFadeIn {
             from {
                 opacity: 0;
                 transform: translateY(-20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -368,7 +363,7 @@
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
+            padding: 10px 12px;
             border: 1px solid #CCCCCC;
             border-radius: 5px;
             background-color: #F5F5F5;
@@ -400,56 +395,31 @@
             background-color: #F97794;
         }
 
-        .welcome-message {
-            margin-left: 20px;
-            color: #FFF;
-            font-size: 1rem;
-            align-self: center;
-            white-space: nowrap;
-        }
-
-        .plan-info { 
-            text-align: center;
-            margin-top: 0px;
+        .email-template {
+            background-color: #f8f9fa;
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            font-family: 'Inter', sans-serif;
+            color: #333;
         }
 
-        .plan-info h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 0px;
-            color: #FFFFFF;
+        .copy-button {
+            position: absolute;
+            top: 20px;
+            right: 60px;
+            padding: 8px 16px;
+            background-color: #623AA2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .plan-name {
-            font-size: 24px;
-            font-weight: 700;
-            color: #F97794;
-            margin-bottom: 0px;
-        }
-
-        .remaining-credits {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 16px;
-            color: #FFFFFF;
-        }
-
-        .credits-label {
-            margin-right: 5px;
-        }
-
-        .credits-value {
-            font-weight: 600;
-        }
-
-        .unlimited-credits {
-            font-size: 16px;
-            font-weight: 600;
-            color: #FFFFFF;
+        .copy-button:hover {
+            background-color: #F97794;
         }
 
         footer {
@@ -463,6 +433,9 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         .footer-links {
@@ -507,13 +480,27 @@
             color: var(--secondary-color);
         }
 
+        .flash-messages {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .flash-message.success { background-color: #d4edda; color: #155724; }
+        .flash-message.error { background-color: #f8d7da; color: #721c24; }
+        .flash-message.info { background-color: #d1ecf1; color: #0c5460; }
+
         @media (max-width: 1024px) {
             .nav-links li {
                 margin-left: 15px;
-            }
-
-            .welcome-message {
-                display: none;
             }
         }
 
@@ -544,33 +531,19 @@
             .social-links {
                 margin-top: 20px;
             }
-            .flash-messages {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .flash-message {
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .flash-message.success { background-color: #d4edda; color: #155724; }
-        .flash-message.error { background-color: #f8d7da; color: #721c24; }
-        .flash-message.info { background-color: #d1ecf1; color: #0c5460; }
         }
     </style>
 </head>
 <body>
     <header>
-         <nav>
+        <nav>
             <a href="/" class="logo">Behai AI</a>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#pricing">Pricing</a></li>
                 <li><a href="#contact">Contact</a></li>
                 {% if session %}
+                    <li><a href="#" id="coldEmailBtn"><i class="far fa-envelope"></i> Cold Email</a></li>
                     <li><a href="/profile">Profile</a></li>
                     <li><a href="/logout">Logout</a></li>
                 {% else %}
@@ -579,6 +552,7 @@
             </ul>
         </nav>
     </header>
+
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -588,7 +562,8 @@
             {% endif %}
         {% endwith %}
     </div>
-  <section id="hero" class="hero">
+
+    <section id="hero" class="hero">
         <div class="container">
             <div class="hero-content">
                 <h1>Compelling Behavioral Stories in <span>10 Seconds</span></h1>
@@ -601,100 +576,73 @@
             </div>
         </div>
     </section>
- <section id="product-demo" class="product-demo">
-    <div class="container">
-        <div class="demo-container">
-            <div style="position: relative; box-sizing: content-box; max-height: 80vh; max-height: 80svh; width: 100%; aspect-ratio: 1.8274111675126903; padding: 40px 0 40px 0;">
-                <iframe src="https://app.supademo.com/embed/cm26whcnb0513vm5sugymr52l?embed_v=2" loading="lazy" title="Behai Demo" allow="clipboard-write" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+
+    <section id="features" class="problems-solutions">
+        <h2>Problems Job Seekers Face</h2>
+        <div class="problem-list">
+            <div class="problem-item">
+                <i class="fas fa-clock"></i>
+                <h3>Time-Consuming</h3>
+                <p>Crafting impactful behavioral stories is a time-consuming task for job seekers, often taking hours of brainstorming and writing.</p>
+            </div>
+            <div class="problem-item">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Lack of Inspiration</h3>
+                <p>Many job seekers struggle to come up with compelling stories that showcase their skills and experiences effectively.</p>
+            </div>
+            <div class="problem-item">
+                <i class="fas fa-users"></i>
+                <h3>Standing Out</h3>
+                <p>With competition fierce, it's challenging for job seekers to create stories that make them stand out from other candidates.</p>
             </div>
         </div>
-    </div>
-</section>   
-<section id="features" class="problems-solutions">
-    <h2>Problems Job Seekers Face</h2>
-    <div class="problem-list">
-        <div class="problem-item">
-            <i class="fas fa-clock"></i>
-            <h3>Time-Consuming</h3>
-            <p>Crafting impactful behavioral stories is a time-consuming task for job seekers, often taking hours of brainstorming and writing.</p>
-        </div>
-        <div class="problem-item">
-            <i class="fas fa-lightbulb"></i>
-            <h3>Lack of Inspiration</h3>
-            <p>Many job seekers struggle to come up with compelling stories that showcase their skills and experiences effectively.</p>
-        </div>
-        <div class="problem-item">
-            <i class="fas fa-users"></i>
-            <h3>Standing Out</h3>
-            <p>With competition fierce, it's challenging for job seekers to create stories that make them stand out from other candidates.</p>
-        </div>
-    </div>
-</section>
+    </section>
 
-<section id="pricing" class="pricing">
-    <div class="pricing-plan">
-        <h3>Starter</h3>
-        <p>Generate up to 5 stories</p>
-        <div class="price">$0</div>
-        <ul>
-            <li>AI-powered generation</li>
-            <li>Customizable questions</li>
-            <li>5 tailored behavioral stories</li>
-        </ul>
-        <a href="#" class="cta-button" id="getStartedBtn">Get Started for free</a>
-    </div>
-    <div class="pricing-plan">
-        <h3>Pro</h3>
-        <p>Generate up to 20 stories</p>
-        <div class="price">$5.99</div>
-        <ul>
-            <li>AI-powered generation</li>
-            <li>Customizable questions</li>
-            <li>20 tailored behavioral stories</li>
-        </ul>
-        <a href="#" id="buyNowBtn" class="cta-button">Buy Now</a>
-    </div>
-    <div class="pricing-plan">
-        <h3>All-In</h3>
-        <p>Generate unlimited stories with a one-time fee</p>
-        <div class="price">$9.99</div>
-        <ul>
-            <li>AI-powered generation</li>
-            <li>Customizable questions</li>
-            <li>Priority support</li>
-            <li>Unlimited tailored behavioral stories</li>
-        </ul>
-        <a href="#" id="unlimitedBtn" class="cta-button">Buy Now</a>
-    </div>
-</section>
-
-<footer id="contact">
-    <div class="container">
-        <div class="footer-content">
-            <p>Behai AI™ 2024. All rights reserved</p>
-            <ul class="footer-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#contact">Contact</a></li>
+    <section id="pricing" class="pricing">
+        <div class="pricing-plan">
+            <h3>Starter</h3>
+            <p>Generate up to 5 stories</p>
+            <div class="price">$0</div>
+            <ul>
+                <li>AI-powered generation</li>
+                <li>Customizable questions</li>
+                <li>5 tailored behavioral stories</li>
+                <li>5 personalized cold emails</li>
             </ul>
-            <ul class="social-links">
-    <li><a href="mailto:behai@gmail.com"><i class="far fa-envelope"></i> Email Us</a></li>
-</ul>
-<div class="product-hunt-badge">
-                <a href="https://www.producthunt.com/products/behai-ai/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-behai&#0045;ai" target="_blank">
-                    <img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=615980&theme=light" 
-                         alt="Behai&#0032;AI - Compelling&#0032;Behavioral&#0032;Stories&#0032;in&#0032;10&#0032;Seconds | Product Hunt" 
-                         style="width: 250px; height: 54px;" width="250" height="54" />
-                </a>
-            </div>
+            <a href="#" class="cta-button" id="getStartedBtn">Get Started for free</a>
         </div>
-    </div>
-</footer>
+        <div class="pricing-plan">
+            <h3>Pro</h3>
+            <p>Generate up to 20 stories</p>
+            <div class="price">$5.99</div>
+            <ul>
+                <li>AI-powered generation</li>
+                <li>Customizable questions</li>
+                <li>20 tailored behavioral stories</li>
+                <li>20 personalized cold emails</li>
+            </ul>
+            <a href="#" id="buyNowBtn" class="cta-button">Buy Now</a>
+        </div>
+        <div class="pricing-plan">
+            <h3>All-In</h3>
+            <p>Generate unlimited stories with a one-time fee</p>
+            <div class="price">$9.99</div>
+            <ul>
+                <li>AI-powered generation</li>
+                <li>Customizable questions</li>
+                <li>Priority support</li>
+                <li>Unlimited tailored behavioral stories</li>
+                <li>Unlimited personalized cold emails</li>
+            </ul>
+            <a href="#" id="unlimitedBtn" class="cta-button">Buy Now</a>
+        </div>
+    </section>
 
-{% if session %}
+    <!-- Story Generation Modal -->
+    {% if session %}
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close">×</span>
+            <span class="close">&times;</span>
             <form id="experienceForm" action="/analyze" method="POST">
                 <div class="form-group">
                     <label for="experience">Work Experience:</label>
@@ -730,137 +678,289 @@
     </div>
     {% endif %}
 
-<script>
-    var modal = document.getElementById("modal");
-    var openModalBtn = document.getElementById("openModal");
-    var closeBtn = document.getElementsByClassName("close")[0];
-    var buyNowBtn = document.getElementById("buyNowBtn");
-    var getStartedBtn = document.getElementById("getStartedBtn");
-    var unlimitedBtn = document.getElementById("unlimitedBtn");
-
-    function redirectToLogin(action) {
-        window.location.href = "/login?action=" + action;
-    }
-
-    if (openModalBtn) {
-        openModalBtn.onclick = function() {
-            {% if session %}
-                modal.style.display = "block";
-            {% else %}
-                redirectToLogin('generate');
-            {% endif %}
-        };
-    }
-
-    if (getStartedBtn) {
-        getStartedBtn.onclick = function() {
-            {% if session %}
-                modal.style.display = "block";
-            {% else %}
-                redirectToLogin('starter');
-            {% endif %}
-        };
-    }
-
-    if (buyNowBtn) {
-        buyNowBtn.onclick = function() {
-            {% if session %}
-                handlePayment(false);
-            {% else %}
-                redirectToLogin('pro');
-            {% endif %}
-        };
-    }
-
-    if (unlimitedBtn) {
-        unlimitedBtn.onclick = function() {
-            {% if session %}
-                handlePayment(true);
-            {% else %}
-                redirectToLogin('unlimited');
-            {% endif %}
-        };
-    }
-
-    if (closeBtn) {
-        closeBtn.onclick = function() {
-            modal.style.display = "none";
-        }
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    // Stripe integration
-    var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
-
-    function handlePayment(isUnlimited) {
-        fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        }).then(function(response) {
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            return response.json();
-        }).then(function(session) {
-            return stripe.redirectToCheckout({
-                sessionId: session.sessionId
-            });
-        }).then(function(result) {
-            if (result.error) {
-                alert(result.error.message);
-            }
-        }).catch(function(error) {
-            console.error("Error:", error);
-            alert("An error occurred. Please try again.");
-        });
-    }
-
-    // Check if we need to trigger Stripe checkout after login
-    {% if session and checkout_after_login %}
-        handlePayment({{ 'true' if checkout_after_login == 'unlimited' else 'false' }});
+    <!-- Cold Email Modal -->
+    <div id="coldEmailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Generate Cold Email</h2>
+            <form id="coldEmailForm">
+                <div class="form-group">
+                    <label for="target_company">Company You're Applying To:</label>
+                    <input type="text" id="target_company" name="target_company" placeholder="e.g., Google, Amazon, etc." required />
+                </div>
+                <div class="form-group">
+                    <label for="target_role">Role You're Applying For:</label>
+                    <input type="text" id="target_role" name="target_role" placeholder="e.g., Product Manager, Software Engineer, etc." required />
+                </div>
+                <div class="form-group">
+                    <label for="your_experience">Your Key Experiences:</label>
+                    <textarea id="your_experience" name="your_experience" rows="4" placeholder="Brief overview of your relevant experience..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recipient_name">Recipient's Name (Optional):</label>
+                    <input type="text" id="recipient_name" name="recipient_name" placeholder="e.g., John Smith" />
+                </div>
+                        <!-- Add right before the submit button in the cold email modal -->
+<div class="plan-info">
+    <h3>Your Plan</h3>
+    <p class="plan-name">{{ plan }}</p>
+    {% if remaining_credits >= 0 %}
+        <div class="remaining-credits">
+            <span class="credits-label">Remaining Credits:</span>
+            <span class="credits-value">{{ remaining_credits }}</span>
+        </div>
+    {% else %}
+        <p class="unlimited-credits">Unlimited Credits</p>
     {% endif %}
+</div>
+                <button type="submit" class="submit-btn">Generate Email</button>
+            </form>
+        </div>
+    </div>
 
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
+    <!-- Email Result Modal -->
+    <div id="emailResultModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <button class="copy-button" onclick="copyEmailTemplate()">Copy to Clipboard</button>
+            <h2>Your Cold Email Template</h2>
+            <div id="emailTemplate" class="email-template"></div>
+        </div>
+    </div>
 
-            const targetId = this.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <p>Behai AI™ 2024. All rights reserved</p>
+                <ul class="footer-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <ul class="social-links">
+                    <li><a href="mailto:behai@gmail.com"><i class="far fa-envelope"></i> Email Us</a></li>
+                </ul>
+                <div class="product-hunt-badge">
+                    <a href="https://www.producthunt.com/products/behai-ai/reviews?utm_source=badge-product_review&utm_medium=badge&utm_souce=badge-behai&#0045;ai" target="_blank">
+                        <img src="https://api.producthunt.com/widgets/embed-image/v1/product_review.svg?product_id=615980&theme=light" 
+                             alt="Behai&#0032;AI - Compelling&#0032;Behavioral&#0032;Stories&#0032;in&#0032;10&#0032;Seconds | Product Hunt" 
+                             style="width: 250px; height: 54px;" width="250" height="54" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-            if (targetElement) {
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const elementPosition = targetElement.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+    <script>
+        var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
+        
+        // Modal elements
+        var modal = document.getElementById("modal");
+        var coldEmailModal = document.getElementById("coldEmailModal");
+        var emailResultModal = document.getElementById("emailResultModal");
+        var openModalBtn = document.getElementById("openModal");
+        var coldEmailBtn = document.getElementById("coldEmailBtn");
+        var closeButtons = document.getElementsByClassName("close");
+        var buyNowBtn = document.getElementById("buyNowBtn");
+        var getStartedBtn = document.getElementById("getStartedBtn");
+        var unlimitedBtn = document.getElementById("unlimitedBtn");
+        var coldEmailForm = document.getElementById("coldEmailForm");
 
-                window.scrollTo({
-                    top: offsetPosition,
-                    behavior: 'smooth'
-                });
+        function redirectToLogin(action) {
+            window.location.href = "/login?action=" + action;
+        }
+
+        // Modal opening handlers
+        if (openModalBtn) {
+            openModalBtn.onclick = function() {
+                {% if session %}
+                    modal.style.display = "block";
+                    modal.classList.add('show');
+                {% else %}
+                    redirectToLogin('generate');
+                {% endif %}
+            };
+        }
+
+        if (coldEmailBtn) {
+            coldEmailBtn.onclick = function() {
+                coldEmailModal.style.display = "block";
+                coldEmailModal.classList.add('show');
+            };
+        }
+
+        if (getStartedBtn) {
+            getStartedBtn.onclick = function() {
+                {% if session %}
+                    modal.style.display = "block";
+                {% else %}
+                    redirectToLogin('starter');
+                {% endif %}
+            };
+        }
+
+        // Payment button handlers
+        if (buyNowBtn) {
+            buyNowBtn.onclick = function() {
+                {% if session %}
+                    handlePayment(false);
+                {% else %}
+                    redirectToLogin('pro');
+                {% endif %}
+            };
+        }
+
+        if (unlimitedBtn) {
+            unlimitedBtn.onclick = function() {
+                {% if session %}
+                    handlePayment(true);
+                {% else %}
+                    redirectToLogin('unlimited');
+                {% endif %}
+            };
+        }
+
+        // Close button handlers
+        Array.from(closeButtons).forEach(btn => {
+            btn.onclick = function() {
+                modal.style.display = "none";
+                coldEmailModal.style.display = "none";
+                emailResultModal.style.display = "none";
             }
         });
-    });
 
-    window.addEventListener('scroll', function() {
-        var header = document.querySelector('header');
-        header.classList.toggle('scrolled', window.scrollY > 0);
-    });
-</script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E5KX9Q5BKX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+        // Click outside modal handler
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+            if (event.target == coldEmailModal) {
+                coldEmailModal.style.display = "none";
+            }
+            if (event.target == emailResultModal) {
+                emailResultModal.style.display = "none";
+            }
+        };
 
-  gtag('config', 'G-E5KX9Q5BKX');
-</script>
+        // Cold email form submission
+        if (coldEmailForm) {
+            coldEmailForm.onsubmit = function(e) {
+                e.preventDefault();
+                
+                fetch('/generate-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        target_company: document.getElementById('target_company').value,
+                        target_role: document.getElementById('target_role').value,
+                        experience: document.getElementById('your_experience').value,
+                        recipient_name: document.getElementById('recipient_name').value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error generating email: ' + data.error);
+                    } else {
+                        document.getElementById('emailTemplate').innerText = data.email;
+                        coldEmailModal.style.display = "none";
+                        emailResultModal.style.display = "block";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while generating the email.');
+                });
+            };
+        }
+
+        // Payment handling
+        function handlePayment(isUnlimited) {
+            fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then(function(response) {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            }).then(function(session) {
+                return stripe.redirectToCheckout({
+                    sessionId: session.sessionId
+                });
+            }).then(function(result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            }).catch(function(error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
+        }
+
+        // Check if we need to trigger Stripe checkout after login
+        {% if session and checkout_after_login %}
+            handlePayment({{ 'true' if checkout_after_login == 'unlimited' else 'false' }});
+        {% endif %}
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    const headerHeight = document.querySelector('header').offsetHeight;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            var header = document.querySelector('header');
+            header.classList.toggle('scrolled', window.scrollY > 0);
+        });
+
+        // Copy email template function
+        function copyEmailTemplate() {
+            const emailText = document.getElementById('emailTemplate').innerText;
+            navigator.clipboard.writeText(emailText)
+                .then(() => {
+                    const copyBtn = document.querySelector('.copy-button');
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy to Clipboard';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy text:', err);
+                    alert('Failed to copy text. Please try again.');
+                });
+        }
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5KX9Q5BKX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-E5KX9Q5BKX');
+    </script>
 </body>
 </html>
+                    

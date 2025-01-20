@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 import secrets
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Replace with a secure secret key
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_secret_key_here')
 
 # Database configuration
 database_url = os.environ.get('DATABASE_URL')
@@ -30,7 +30,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Instead of hardcoded keys
+# API keys from environment variables
 stripe.api_key = os.environ.get('STRIPE_API_KEY')
 anthropic_client = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
 
@@ -38,13 +38,17 @@ anthropic_client = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
 oauth = OAuth(app)
 oauth.register(
     "auth0",
-    client_id="CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U",
-    client_secret="Xpsc111fF7ebg3gpCh9hr0v3LRBm7ADhT1w5z2oF0q270rmQlfxWjLpcCrtqXl_d",
+    client_id=os.environ.get('AUTH0_CLIENT_ID', "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U"),
+    client_secret=os.environ.get('AUTH0_CLIENT_SECRET', "Xpsc111fF7ebg3gpCh9hr0v3LRBm7ADhT1w5z2oF0q270rmQlfxWjLpcCrtqXl_d"),
     client_kwargs={
         "scope": "openid profile email",
     },
     server_metadata_url='https://auth.behai.ai/.well-known/openid-configuration'
 )
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Database Models
 class User(db.Model):
@@ -82,6 +86,78 @@ def redirect_www():
     if urlparts[1].startswith('www.'):
         return redirect('https://' + urlparts[1][4:], code=301)
 
+@app.route('/')
+def home():
+    logged_in = 'user' in session
+    payment_completed = session.get("payment_completed", False)
+    
+    if payment_completed:
+        session.pop("payment_completed", None)
+    
+    user_id = session.get("user", {}).get("userinfo", {}).get("sub")
+    user = User.query.get(user_id) if user_id else None
+    user_plan = user.plan if user else "Starter"
+    remaining_credits = user.credits if user else 0
+    
+    return render_template('home.html', 
+                         session=session.get('user'), 
+                         logged_in=logged_in, 
+                         payment_completed=payment_completed, 
+                         plan=user_plan, 
+                         remaining_credits=remaining_credits,
+                         checkout_after_login=request.args.get('checkout_after_login'))
+
+@app.route('/login')
+def login():
+    state = secrets.token_urlsafe(16)
+    session['oauth_state'] = state
+    checkout_action = request.args.get('action')
+    if checkout_action:
+        session['checkout_after_login'] = checkout_action
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=f"{request.scheme}://{request.host}/callback",
+        state=state
+    )
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    if 'oauth_state' not in session or session['oauth_state'] != request.args.get('state'):
+        return "Invalid state parameter", 400
+    
+    try:
+        token = oauth.auth0.authorize_access_token()
+        logger.info(f"Token received: {token}")
+        session["user"] = token
+        
+        user = User.query.get(token['userinfo']['sub'])
+        if not user:
+            user = User(id=token['userinfo']['sub'], email=token['userinfo']['email'])
+            db.session.add(user)
+            db.session.commit()
+        
+        
+        checkout_action = session.pop('checkout_after_login', None)
+        if checkout_action:
+            return redirect(url_for('home', checkout_after_login=checkout_action))
+        
+        return redirect("/")
+    except Exception as e:
+        logger.error(f"Error in callback: {str(e)}")
+        return f"An error occurred: {str(e)}", 500
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(
+        "https://auth.behai.ai/v2/logout?" + urlencode(
+            {
+                "returnTo": "https://behai.ai/",
+                "client_id": os.environ.get('AUTH0_CLIENT_ID', "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U"),
+            },
+            quote_via=quote_plus,
+        )
+    )
+
 @app.route('/profile')
 @requires_auth
 def profile():
@@ -94,10 +170,10 @@ def profile():
     transactions = Transaction.query.filter_by(user_id=user_id).order_by(Transaction.timestamp.desc()).limit(5).all()
     
     return render_template('profile.html', 
-                           session=session.get('user'),
-                           user_role=user.plan,
-                           remaining_credits=user.credits,
-                           transactions=transactions)
+                         session=session.get('user'),
+                         user_role=user.plan,
+                         remaining_credits=user.credits,
+                         transactions=transactions)
 
 def check_and_update_credits(user_id):
     user = User.query.get(user_id)
@@ -112,73 +188,6 @@ def check_and_update_credits(user_id):
         return True
     else:
         return False
-
-@app.route('/')
-def home():
-    logged_in = 'user' in session
-    payment_completed = session.get("payment_completed", False)
-    
-    if payment_completed:
-        session.pop("payment_completed", None)  # Reset the payment_completed flag
-    
-    user_id = session.get("user", {}).get("userinfo", {}).get("sub")
-    user = User.query.get(user_id) if user_id else None
-    user_plan = user.plan if user else "Starter"
-    remaining_credits = user.credits if user else 0
-    
-    return render_template('home.html', 
-                           session=session.get('user'), 
-                           logged_in=logged_in, 
-                           payment_completed=payment_completed, 
-                           plan=user_plan, 
-                           remaining_credits=remaining_credits)
-
-@app.route('/login')
-def login():
-    state = secrets.token_urlsafe(16)
-    session['oauth_state'] = state
-    return oauth.auth0.authorize_redirect(
-        redirect_uri=f"{request.scheme}://{request.host}/callback",
-        state=state
-    )
-
-@app.route("/callback", methods=["GET", "POST"])
-def callback():
-    if 'oauth_state' not in session or session['oauth_state'] != request.args.get('state'):
-        return "Invalid state parameter", 400
-    
-    try:
-        token = oauth.auth0.authorize_access_token()
-        app.logger.info(f"Token received: {token}")
-        session["user"] = token
-        
-        user = User.query.get(token['userinfo']['sub'])
-        if not user:
-            user = User(id=token['userinfo']['sub'], email=token['userinfo']['email'])
-            db.session.add(user)
-            db.session.commit()
-        
-        checkout_action = session.pop('checkout_after_login', None)
-        if checkout_action:
-            return redirect(url_for('home', checkout_after_login=checkout_action))
-        
-        return redirect("/")
-    except Exception as e:
-        app.logger.error(f"Error in callback: {str(e)}")
-        return f"An error occurred: {str(e)}", 500
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(
-        "https://auth.behai.ai/v2/logout?" + urlencode(
-            {
-                "returnTo": "https://behai.ai/",
-                "client_id": "CCu9ZpI4SUJbP0N0dpvrumvaetYyZh8U",
-            },
-            quote_via=quote_plus,
-        )
-    )
 
 @app.route('/analyze', methods=['POST'])
 @requires_auth
@@ -200,8 +209,9 @@ def analyze():
     try:
         answer = generate_answer(question, experience_text, company_blurb, role)
         return redirect(url_for('result', answer=answer, question=question, 
-                                experience_text=experience_text, company_blurb=company_blurb, role=role))
+                              experience_text=experience_text, company_blurb=company_blurb, role=role))
     except Exception as e:
+        logger.error(f"Error in analyze: {str(e)}")
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for('home'))
 
@@ -209,11 +219,11 @@ def analyze():
 @requires_auth
 def result():
     return render_template('result.html', 
-                           answer=request.args.get('answer'),
-                           question=request.args.get('question'),
-                           experience_text=request.args.get('experience_text'),
-                           company_blurb=request.args.get('company_blurb'),
-                           role=request.args.get('role'))
+                         answer=request.args.get('answer'),
+                         question=request.args.get('question'),
+                         experience_text=request.args.get('experience_text'),
+                         company_blurb=request.args.get('company_blurb'),
+                         role=request.args.get('role'))
 
 @app.route('/update_question', methods=['POST'])
 @requires_auth
@@ -231,7 +241,76 @@ def update_question():
         answer = generate_answer(question, experience_text, company_blurb, role)
         return jsonify(answer=answer)
     except Exception as e:
+        logger.error(f"Error in update_question: {str(e)}")
         return jsonify(error=str(e)), 500
+
+@app.route('/generate-email', methods=['POST'])
+@requires_auth
+def generate_email():
+    user_id = session['user']['userinfo']['sub']
+    if not check_and_update_credits(user_id):
+        return jsonify(error="You've used all your credits. Please upgrade your plan for more."), 403
+
+    data = request.json
+    target_company = data.get('target_company')
+    target_role = data.get('target_role')
+    experience = data.get('experience')
+    recipient_name = data.get('recipient_name', '')
+
+    if not all([target_company, target_role, experience]):
+        return jsonify(error="Please fill in all required fields."), 400
+
+    try:
+        message_content = f"""Generate a cold email using exactly this format:
+
+Start with:
+"Hi {recipient_name if recipient_name else ''},
+
+My name is *Insert name*. I understand your time is valuable, I'll only write three bullet points."
+
+Then generate 3 distinct bullet points that:
+1. First bullet: Focus on your highest-level role/education/credential that matches the target role
+2. Second bullet: Highlight your most impressive quantified achievement or scale of impact
+3. Third bullet: Showcase a unique skill, approach, or mindset that sets you apart
+
+Format rules for bullets:
+- Use **bold** for key terms, metrics, and company names
+- Each bullet should focus on ONE key thing (not multiple achievements)
+- Transform complex achievements into simple, impactful statements
+- Avoid repeating the same metrics or achievements
+- Keep each bullet under 20 words
+
+For example, turn this experience:
+"Led healthcare provider launches worth $2M+ in take rate as Operations Lead, optimizing onboarding and integration across 50+ implementations"
+
+Into distinct bullets like:
+"- **Operations Lead** with track record of scaling healthcare technology solutions at **high-growth startups**
+- Drove **$2M+ revenue growth** through strategic provider partnerships and optimized implementations
+- Proven ability to build and lead **cross-functional teams** while maintaining operational excellence"
+
+End with exactly:
+"Interested in the **{target_role}** role at **{target_company}**. My apologies for the cold outreach but I have been very interested in the work going on at {target_company} and I'd be thrilled to have an opportunity to interview for this role."
+
+Use these details to generate the bullet points:
+Role: {target_role}
+Company: {target_company}
+Experience: {experience}"""
+
+        message = anthropic_client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=300,
+            messages=[
+                {
+                    "role": "user",
+                    "content": message_content
+                }
+            ]
+        )
+        
+        return jsonify({'email': message.content[0].text})
+    except Exception as e:
+        logger.error(f"Error generating email: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/create-checkout-session', methods=['POST'])
 @requires_auth
@@ -272,7 +351,7 @@ def create_checkout_session():
         )
         return jsonify({'sessionId': checkout_session['id']})
     except Exception as e:
-        app.logger.error(f"Error creating checkout session: {str(e)}")
+        logger.error(f"Error creating checkout session: {str(e)}")
         return jsonify({'error': str(e)}), 403
 
 @app.route('/success')
@@ -293,7 +372,11 @@ def success():
                     elif plan_name == 'Pro':
                         user.credits = 20
                     
-                    transaction = Transaction(user_id=user_id, amount=checkout_session.amount_total / 100, plan=plan_name)
+                    transaction = Transaction(
+                        user_id=user_id, 
+                        amount=checkout_session.amount_total / 100, 
+                        plan=plan_name
+                    )
                     db.session.add(transaction)
                     db.session.commit()
                 
@@ -301,7 +384,7 @@ def success():
             else:
                 flash("Payment was not completed. Please try again or contact support.", "error")
         except Exception as e:
-            app.logger.error(f"Error processing successful payment: {str(e)}")
+            logger.error(f"Error processing successful payment: {str(e)}")
             flash("An error occurred while processing your payment. Please contact support.", "error")
     else:
         flash("No checkout session found. If you've made a payment, please contact support.", "warning")
@@ -311,48 +394,69 @@ def success():
 @app.route('/cancel')
 def cancel():
     flash("Your payment was cancelled.", "info")
-    return render_template('cancel.html')
+    return redirect(url_for('home'))
 
 def generate_answer(question, experience_text, company_blurb, role):
-    # Create the message content
-    message_content = f"""Generate a detailed, compelling behavioral answer in the STAR format (Situation, Task, Action, Result) for the following question based on the candidate's provided experience, company blurb, and role. Focus on the specific experiences, skills, and impact mentioned in the candidate's input. Provide relevant examples and quantify results where possible, ensuring that the answer is consistent with the given experience, company, and role.
-
-For questions about weaknesses, challenges, conflicts, or failures, frame the response to demonstrate self-awareness, problem-solving skills, personal growth, and lessons learned. Ensure the answer addresses the specific question asked, even if it requires discussing areas for improvement.
+    message_content = f"""Generate a conversational, compelling behavioral answer in the STAR format that flows naturally like someone speaking in an interview. The response should feel authentic and engaging, not like a list of bullet points.
 
 Question: {question}
 
 Candidate's Experience: {experience_text}
 
-Company Blurb: {company_blurb}
+Company & Role Context:
+- Company: {company_blurb}
+- Role: {role}
 
-Role: {role}
+Guidelines for the response:
+1. Structure using STAR but make it flow naturally:
+   - Situation: Set the scene with context and background
+   - Task: Explain the specific challenge or objective
+   - Action: Describe what you did (use first person, active voice)
+   - Result: Share the impact and outcomes
 
-Please follow this format:
+2. Style requirements:
+   - Write in a natural, conversational tone
+   - Avoid bullet points or lists
+   - Connect ideas with smooth transitions
+   - Include specific details and metrics but weave them naturally into sentences
+   - Use confident but humble language
+   - Keep paragraphs short and digestible
+   - For questions about challenges/weaknesses, show growth and self-awareness
 
-Situation: [Describe a specific situation or context from the candidate's experience that is relevant to the question and role at the mentioned company]
+Example tone (not content to copy):
+"In my previous role at HealthTech, we were facing a critical moment in our growth phase. Our provider onboarding process was becoming a bottleneck as we scaled, and I recognized we needed a complete overhaul of our approach. I took ownership of this challenge and started by deeply analyzing our existing implementations. What I found was eye-opening - each team was essentially creating their own process, leading to inconsistent results and frustrated providers. 
 
-Task: [Explain the task, challenge, or responsibility the candidate needed to address in that situation while working in the specified role]
+I knew we needed a standardized playbook, but I wanted to build it from real data and experience. I spent three weeks interviewing our top-performing team members, documenting their best practices, and mapping out the common pitfalls they'd encountered. Using these insights, I developed a comprehensive implementation framework that any team member could follow.
 
-Action: [Detail the specific actions the candidate took to address the situation, leveraging their skills and experiences from the provided experience. For questions about weaknesses or challenges, focus on steps taken to improve or overcome them.]
+The results were transformative. Not only did we successfully onboard 50+ new providers using this framework, but we also saw our customer satisfaction scores shift from neutral to consistently positive. What I'm most proud of though, is how this framework enabled us to scale our team from 3 to over 20 members in just two months while maintaining quality. We ended up generating $2M in additional revenue through these streamlined launches."
 
-Result: [Highlight the measurable outcomes or impact achieved through the candidate's actions, using metrics or examples from the candidate's experience where applicable. For questions about weaknesses or challenges, emphasize growth, lessons learned, or improvements made.]"""
+For this specific question and experience, please create a natural, flowing response that demonstrates the candidate's capabilities while maintaining an authentic, conversational tone."""
 
-    # Create the message using the Messages API
-    message = anthropic_client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=400,
-        messages=[
-            {
-                "role": "user",
-                "content": message_content
-            }
-        ]
-    )
+    try:
+        message = anthropic_client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=400,
+            messages=[
+                {
+                    "role": "user",
+                    "content": message_content
+                }
+            ]
+        )
+        return message.content[0].text
+    except Exception as e:
+        logger.error(f"Error generating answer: {str(e)}")
+        raise
 
-    # Return the response content
-    return message.content[0].text
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(debug=os.environ.get('FLASK_DEBUG', 'True').lower() == 'true')
