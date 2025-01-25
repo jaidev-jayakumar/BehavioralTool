@@ -403,20 +403,37 @@ def optimize_resume():
     experiences = data.get('experiences', [])
 
     try:
-        message_content = f"""Optimize these resume bullet points specifically for this job description. Follow these principles:
-1. Use strong action verbs
-2. Quantify impact where possible
-3. Match skills/keywords from job description
-4. Keep natural, conversational tone like these examples:
+        message_content = f"""Optimize these resume bullet points specifically for this job description while maintaining a natural, human voice.
 
+Key Guidelines:
+1. Use the X-Y-Z formula naturally: "Accomplished [X] as measured by [Y], by doing [Z]"
+2. Quantify impact and show growth wherever possible
+3. Match relevant skills/keywords from the job description
+4. Write in a conversational, authentic tone
+5. Keep each bullet concise but impactful
+
+Style Requirements:
+- Transform technical achievements into compelling personal stories
+- Include metrics naturally within the narrative
+- Use strong action verbs while maintaining conversational flow
+- Focus on your direct impact while acknowledging team context
+- Keep each bullet to one line where possible
+
+Examples of Natural Transformation:
 Original: "Led healthcare provider launches worth $2M+"
-Optimized: "Orchestrated company's largest market expansion, driving end-to-end execution worth $2M+ in revenue"
+Better: "Orchestrated company's largest market expansion, driving end-to-end execution worth $2M+ in revenue while reimagining the provider experience"
 
 Original: "Built scalable framework"
-Optimized: "Implemented scalable operational framework, growing team from 3 to 20+ members while maintaining service quality"
+Better: "Shaped the team's growth journey from 3 to 20+ members by implementing an adaptable operational framework that maintained our quality standards"
+
+Original: "Implemented a new marketing strategy"
+Optimized: "Transformed marketing approach, increasing lead conversion rates by 35% through targeted campaign strategies."
+
 
 Job Description: {job_description}
-Experiences to Optimize: {experiences}"""
+Experiences to Optimize: {experiences}
+
+Make each bullet point sound like someone naturally describing their real achievements in a compelling way, not following a rigid template."""
 
         message = anthropic_client.messages.create(
             model="claude-3-5-sonnet-20241022",
