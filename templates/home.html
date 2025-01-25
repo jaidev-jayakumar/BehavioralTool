@@ -32,7 +32,7 @@
         }
 
         header {
-            background-color: transparent;
+            background-color: #1F1F1F;
             position: fixed;
             top: 0;
             left: 0;
@@ -544,6 +544,7 @@
                 <li><a href="#contact">Contact</a></li>
                 {% if session %}
                     <li><a href="#" id="coldEmailBtn"><i class="far fa-envelope"></i> Cold Email</a></li>
+                    <li><a href="#" id="resumeBtn"><i class="far fa-file"></i> Resume</a></li>
                     <li><a href="/profile">Profile</a></li>
                     <li><a href="/logout">Logout</a></li>
                 {% else %}
@@ -728,6 +729,28 @@
         </div>
     </div>
 
+    <!-- Add this before the footer -->
+<div id="resumeModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Optimize Resume</h2>
+        <form id="resumeForm">
+            <div class="form-group">
+                <label for="job_description">Job Description:</label>
+                <textarea id="job_description" name="job_description" rows="4" placeholder="Paste the job description here..." required></textarea>
+            </div>
+            <div id="experiences">
+                <div class="form-group">
+                    <label>Experience:</label>
+                    <textarea class="experience-input" rows="3" required placeholder="Enter a bullet point from your resume..."></textarea>
+                </div>
+            </div>
+            <button type="button" onclick="addExperience()" class="submit-btn">Add Another Experience</button>
+            <button type="submit" class="submit-btn">Optimize Resume</button>
+        </form>
+    </div>
+</div>
+
     <footer id="contact">
         <div class="container">
             <div class="footer-content">
@@ -753,203 +776,266 @@
 
     <script>
         var stripe = Stripe("pk_live_51P2NaoRsyNEomGjpeAxT2ji8CMpwMQXv3jvDTfF809Cel0PsMgb4g1JV6iKOMoQOH4v2qjMqYWeVpElheijiuLhe00s8KE6noV");
-        
-        // Modal elements
-        var modal = document.getElementById("modal");
-        var coldEmailModal = document.getElementById("coldEmailModal");
-        var emailResultModal = document.getElementById("emailResultModal");
-        var openModalBtn = document.getElementById("openModal");
-        var coldEmailBtn = document.getElementById("coldEmailBtn");
-        var closeButtons = document.getElementsByClassName("close");
-        var buyNowBtn = document.getElementById("buyNowBtn");
-        var getStartedBtn = document.getElementById("getStartedBtn");
-        var unlimitedBtn = document.getElementById("unlimitedBtn");
-        var coldEmailForm = document.getElementById("coldEmailForm");
 
-        function redirectToLogin(action) {
-            window.location.href = "/login?action=" + action;
-        }
+// Modal elements
+var modal = document.getElementById("modal");
+var resumeModal = document.getElementById("resumeModal");
+var coldEmailModal = document.getElementById("coldEmailModal");
+var emailResultModal = document.getElementById("emailResultModal");
+var openModalBtn = document.getElementById("openModal");
+var resumeBtn = document.getElementById("resumeBtn");
+var coldEmailBtn = document.getElementById("coldEmailBtn");
+var closeButtons = document.getElementsByClassName("close");
+var buyNowBtn = document.getElementById("buyNowBtn");
+var getStartedBtn = document.getElementById("getStartedBtn");
+var unlimitedBtn = document.getElementById("unlimitedBtn");
+var coldEmailForm = document.getElementById("coldEmailForm");
+var resumeForm = document.getElementById("resumeForm");
 
-        // Modal opening handlers
-        if (openModalBtn) {
-            openModalBtn.onclick = function() {
-                {% if session %}
-                    modal.style.display = "block";
-                    modal.classList.add('show');
-                {% else %}
-                    redirectToLogin('generate');
-                {% endif %}
-            };
-        }
+function redirectToLogin(action) {
+    window.location.href = "/login?action=" + action;
+}
 
-        if (coldEmailBtn) {
-            coldEmailBtn.onclick = function() {
-                coldEmailModal.style.display = "block";
-                coldEmailModal.classList.add('show');
-            };
-        }
-
-        if (getStartedBtn) {
-            getStartedBtn.onclick = function() {
-                {% if session %}
-                    modal.style.display = "block";
-                {% else %}
-                    redirectToLogin('starter');
-                {% endif %}
-            };
-        }
-
-        // Payment button handlers
-        if (buyNowBtn) {
-            buyNowBtn.onclick = function() {
-                {% if session %}
-                    handlePayment(false);
-                {% else %}
-                    redirectToLogin('pro');
-                {% endif %}
-            };
-        }
-
-        if (unlimitedBtn) {
-            unlimitedBtn.onclick = function() {
-                {% if session %}
-                    handlePayment(true);
-                {% else %}
-                    redirectToLogin('unlimited');
-                {% endif %}
-            };
-        }
-
-        // Close button handlers
-        Array.from(closeButtons).forEach(btn => {
-            btn.onclick = function() {
-                modal.style.display = "none";
-                coldEmailModal.style.display = "none";
-                emailResultModal.style.display = "none";
-            }
-        });
-
-        // Click outside modal handler
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-            if (event.target == coldEmailModal) {
-                coldEmailModal.style.display = "none";
-            }
-            if (event.target == emailResultModal) {
-                emailResultModal.style.display = "none";
-            }
-        };
-
-        // Cold email form submission
-        if (coldEmailForm) {
-            coldEmailForm.onsubmit = function(e) {
-                e.preventDefault();
-                
-                fetch('/generate-email', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        target_company: document.getElementById('target_company').value,
-                        target_role: document.getElementById('target_role').value,
-                        experience: document.getElementById('your_experience').value,
-                        recipient_name: document.getElementById('recipient_name').value
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error generating email: ' + data.error);
-                    } else {
-                        document.getElementById('emailTemplate').innerText = data.email;
-                        coldEmailModal.style.display = "none";
-                        emailResultModal.style.display = "block";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while generating the email.');
-                });
-            };
-        }
-
-        // Payment handling
-        function handlePayment(isUnlimited) {
-            fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }).then(function(response) {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            }).then(function(session) {
-                return stripe.redirectToCheckout({
-                    sessionId: session.sessionId
-                });
-            }).then(function(result) {
-                if (result.error) {
-                    alert(result.error.message);
-                }
-            }).catch(function(error) {
-                console.error("Error:", error);
-                alert("An error occurred. Please try again.");
-            });
-        }
-
-        // Check if we need to trigger Stripe checkout after login
-        {% if session and checkout_after_login %}
-            handlePayment({{ 'true' if checkout_after_login == 'unlimited' else 'false' }});
+// Modal opening handlers
+if (openModalBtn) {
+    openModalBtn.onclick = function() {
+        {% if session %}
+            modal.style.display = "block";
+            modal.classList.add('show');
+        {% else %}
+            redirectToLogin('generate');
         {% endif %}
+    };
+}
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
+if (coldEmailBtn) {
+    coldEmailBtn.onclick = function() {
+        coldEmailModal.style.display = "block";
+        coldEmailModal.classList.add('show');
+        resumeModal.style.display = "none";
+        resumeModal.classList.remove('show');
+    };
+}
 
-                const targetId = this.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
+if (resumeBtn) {
+    resumeBtn.onclick = function() {
+        resumeModal.style.display = "block";
+        resumeModal.classList.add('show');
+        coldEmailModal.style.display = "none";
+        coldEmailModal.classList.remove('show');
+    };
+}
 
-                if (targetElement) {
-                    const headerHeight = document.querySelector('header').offsetHeight;
-                    const elementPosition = targetElement.getBoundingClientRect().top;
-                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+if (getStartedBtn) {
+    getStartedBtn.onclick = function() {
+        {% if session %}
+            modal.style.display = "block";
+        {% else %}
+            redirectToLogin('starter');
+        {% endif %}
+    };
+}
 
-                    window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
+// Payment button handlers
+if (buyNowBtn) {
+    buyNowBtn.onclick = function() {
+        {% if session %}
+            handlePayment(false);
+        {% else %}
+            redirectToLogin('pro');
+        {% endif %}
+    };
+}
+
+if (unlimitedBtn) {
+    unlimitedBtn.onclick = function() {
+        {% if session %}
+            handlePayment(true);
+        {% else %}
+            redirectToLogin('unlimited');
+        {% endif %}
+    };
+}
+
+// Close button handlers
+Array.from(closeButtons).forEach(btn => {
+    btn.onclick = function() {
+        modal.style.display = "none";
+        coldEmailModal.style.display = "none";
+        emailResultModal.style.display = "none";
+        resumeModal.style.display = "none";
+        modal.classList.remove('show');
+        coldEmailModal.classList.remove('show');
+        emailResultModal.classList.remove('show');
+        resumeModal.classList.remove('show');
+    }
+});
+
+// Click outside modal handler
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+        modal.classList.remove('show');
+    }
+    if (event.target == coldEmailModal) {
+        coldEmailModal.style.display = "none";
+        coldEmailModal.classList.remove('show');
+    }
+    if (event.target == emailResultModal) {
+        emailResultModal.style.display = "none";
+        emailResultModal.classList.remove('show');
+    }
+    if (event.target == resumeModal) {
+        resumeModal.style.display = "none";
+        resumeModal.classList.remove('show');
+    }
+};
+
+// Cold email form submission
+if (coldEmailForm) {
+    coldEmailForm.onsubmit = function(e) {
+        e.preventDefault();
+        
+        fetch('/generate-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                target_company: document.getElementById('target_company').value,
+                target_role: document.getElementById('target_role').value,
+                experience: document.getElementById('your_experience').value,
+                recipient_name: document.getElementById('recipient_name').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error generating email: ' + data.error);
+            } else {
+                document.getElementById('emailTemplate').innerText = data.email;
+                coldEmailModal.style.display = "none";
+                emailResultModal.style.display = "block";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while generating the email.');
         });
+    };
+}
 
-        // Header scroll effect
-        window.addEventListener('scroll', function() {
-            var header = document.querySelector('header');
-            header.classList.toggle('scrolled', window.scrollY > 0);
-        });
-
-        // Copy email template function
-        function copyEmailTemplate() {
-            const emailText = document.getElementById('emailTemplate').innerText;
-            navigator.clipboard.writeText(emailText)
-                .then(() => {
-                    const copyBtn = document.querySelector('.copy-button');
-                    copyBtn.textContent = 'Copied!';
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copy to Clipboard';
-                    }, 2000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy text:', err);
-                    alert('Failed to copy text. Please try again.');
-                });
+// Payment handling
+function handlePayment(isUnlimited) {
+    fetch("/create-checkout-session" + (isUnlimited ? "?unlimited=true" : ""), {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    }).then(function(response) {
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
         }
+        return response.json();
+    }).then(function(session) {
+        return stripe.redirectToCheckout({
+            sessionId: session.sessionId
+        });
+    }).then(function(result) {
+        if (result.error) {
+            alert(result.error.message);
+        }
+    }).catch(function(error) {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
+
+// Check if we need to trigger Stripe checkout after login
+{% if session and checkout_after_login %}
+    handlePayment({{ 'true' if checkout_after_login == 'unlimited' else 'false' }});
+{% endif %}
+
+// Smooth scrolling for navigation links
+document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        const targetId = this.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+
+        if (targetElement) {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const elementPosition = targetElement.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// Header scroll effect
+window.addEventListener('scroll', function() {
+    var header = document.querySelector('header');
+    header.classList.toggle('scrolled', window.scrollY > 0);
+});
+
+// Copy email template function
+function copyEmailTemplate() {
+    const emailText = document.getElementById('emailTemplate').innerText;
+    navigator.clipboard.writeText(emailText)
+        .then(() => {
+            const copyBtn = document.querySelector('.copy-button');
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy to Clipboard';
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy text:', err);
+            alert('Failed to copy text. Please try again.');
+        });
+}
+
+function addExperience() {
+    var div = document.createElement('div');
+    div.className = 'form-group';
+    div.innerHTML = `
+        <label>Experience:</label>
+        <textarea class="experience-input" rows="3" required placeholder="Enter a bullet point from your resume..."></textarea>
+        <button type="button" onclick="this.parentElement.remove()" class="submit-btn">Remove</button>
+    `;
+    document.getElementById('experiences').appendChild(div);
+}
+
+if (resumeForm) {
+    resumeForm.onsubmit = function(e) {
+        e.preventDefault();
+        var experiences = Array.from(document.getElementsByClassName('experience-input')).map(el => el.value);
+        fetch('/optimize-resume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                job_description: document.getElementById('job_description').value,
+                experiences: experiences
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById('emailTemplate').innerText = data.optimized_bullets;
+                resumeModal.classList.remove('show');
+                emailResultModal.classList.add('show');
+            }
+        });
+    };
+}
+
     </script>
 
     <!-- Google tag (gtag.js) -->

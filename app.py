@@ -391,6 +391,44 @@ def success():
     
     return redirect(url_for('home'))
 
+@app.route('/optimize-resume', methods=['POST'])
+@requires_auth
+def optimize_resume():
+    user_id = session['user']['userinfo']['sub']
+    if not check_and_update_credits(user_id):
+        return jsonify(error="You've used all your credits. Please upgrade your plan for more."), 403
+
+    data = request.json
+    job_description = data.get('job_description')
+    experiences = data.get('experiences', [])
+
+    try:
+        message_content = f"""Optimize these resume bullet points specifically for this job description. Follow these principles:
+1. Use strong action verbs
+2. Quantify impact where possible
+3. Match skills/keywords from job description
+4. Keep natural, conversational tone like these examples:
+
+Original: "Led healthcare provider launches worth $2M+"
+Optimized: "Orchestrated company's largest market expansion, driving end-to-end execution worth $2M+ in revenue"
+
+Original: "Built scalable framework"
+Optimized: "Implemented scalable operational framework, growing team from 3 to 20+ members while maintaining service quality"
+
+Job Description: {job_description}
+Experiences to Optimize: {experiences}"""
+
+        message = anthropic_client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=500,
+            messages=[{"role": "user", "content": message_content}]
+        )
+        
+        return jsonify({'optimized_bullets': message.content[0].text})
+    except Exception as e:
+        logger.error(f"Error optimizing resume: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/cancel')
 def cancel():
     flash("Your payment was cancelled.", "info")
