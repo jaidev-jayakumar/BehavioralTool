@@ -746,7 +746,7 @@
                 </div>
             </div>
             <button type="button" onclick="addExperience()" class="submit-btn">Add Another Experience</button>
-            <button type="submit" class="submit-btn" onclick="showOptimizedResume()">Optimize Resume</button>
+            <button type="submit" class="submit-btn">Optimize Resume</button>        
         </form>
     </div>
 </div>
@@ -1001,11 +1001,6 @@ function copyEmailTemplate() {
             alert('Failed to copy text. Please try again.');
         });
 }
-function showOptimizedResume() {
-    resumeModal.style.display = "none";
-    emailResultModal.style.display = "block";
-    emailResultModal.classList.add('show');
-}
 
 function addExperience() {
     var div = document.createElement('div');
@@ -1036,7 +1031,8 @@ if (resumeForm) {
                 alert(data.error);
             } else {
                 document.getElementById('emailTemplate').innerText = data.optimized_bullets;
-                resumeModal.classList.remove('show');
+                resumeModal.style.display = "none";
+                emailResultModal.style.display = "block";
                 emailResultModal.classList.add('show');
             }
         });
