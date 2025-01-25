@@ -720,11 +720,11 @@
     </div>
 
     <!-- Email Result Modal -->
-    <div id="emailResultModal" class="modal">
-        <div class="modal-content">
+            <div id="emailResultModal" class="modal">
+                <div class="modal-content">
             <span class="close">&times;</span>
             <button class="copy-button" onclick="copyEmailTemplate()">Copy to Clipboard</button>
-            <h2>Your Cold Email Template</h2>
+            <h2 id="resultTitle">Your Cold Email Template</h2>
             <div id="emailTemplate" class="email-template"></div>
         </div>
     </div>
@@ -1030,6 +1030,7 @@ if (resumeForm) {
             if (data.error) {
                 alert(data.error);
             } else {
+                document.getElementById('resultTitle').innerText = 'Optimized Resume Bullets';
                 document.getElementById('emailTemplate').innerText = data.optimized_bullets;
                 resumeModal.style.display = "none";
                 emailResultModal.style.display = "block";
